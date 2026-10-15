@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生物統計學教學動畫</title>
+<style>
+:root{
+  --ink:#10315A; --soft:#5B7391; --accent:#E2703A;
+  --bg:#F4F6F9; --card:#FFFFFF; --line:#D9E1EA; --shadow:0 2px 14px rgba(16,49,90,.10);
+  --font:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Hiragino Sans TC",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8EEF6; --soft:#93A7BF; --accent:#FF8F5C;
+    --bg:#0C1623; --card:#142334; --line:#26384D; --shadow:0 2px 16px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8EEF6; --soft:#93A7BF; --accent:#FF8F5C;
+  --bg:#0C1623; --card:#142334; --line:#26384D; --shadow:0 2px 16px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.7}
+img{max-width:100%}
+main{max-width:760px;margin:0 auto;padding:48px 16px 64px}
+h1{font-size:clamp(1.6rem,4vw,2.2rem);margin:0 0 .3em}
+.sub{color:var(--soft);margin:0 0 2em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:14px;background:var(--card);
+  border:1px solid var(--line);box-shadow:var(--shadow);color:inherit;text-decoration:none;transition:transform .15s}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.wk{font-weight:700;color:var(--accent);letter-spacing:.05em}
+.tp{font-size:1.15rem;font-weight:700}
+.go{color:var(--soft);font-size:.95rem;margin-top:auto}
+.tips{margin-top:2.5em;padding:16px 20px;border-left:4px solid var(--accent);background:var(--card);border-radius:8px}
+.tips h2{font-size:1rem;margin:0 0 .4em}
+.tips ul{margin:0;padding-left:1.2em}
+kbd{font-family:inherit;border:1px solid var(--line);border-radius:4px;padding:0 .35em;background:var(--bg)}
+</style>
+</head>
+<body>
+<main>
+  <h1>生物統計學・教學動畫</h1>
+  <p class="sub">1151 學期・護理系二技一年級</p>
+  <div class="grid">
+    <a class="card" href="w04/">
+      <span class="wk">W04</span>
+      <span class="tp">分布與假說檢定</span>
+      <span class="go">開始看 →</span>
+    </a>
+  </div>
+  <section class="tips">
+    <h2>怎麼看</h2>
+    <ul>
+      <li><kbd>→</kbd> 下一步、<kbd>←</kbd> 上一步、<kbd>空白鍵</kbd> 自動播放；手機點畫面下方按鈕</li>
+      <li>配音預設開啟，按第一下（下一步或播放）之後才會出聲</li>
+      <li>配音是瀏覽器內建的語音，<b>用 Edge 開最自然</b>，預設就是「曉臻（自然，需網路）」；手機與 Chrome 也有中文語音</li>
+      <li>右上「章節」可以直接跳到想複習的段落</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

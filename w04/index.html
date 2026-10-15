@@ -1,0 +1,1774 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生物統計學 W04 教學動畫</title>
+<style>
+:root{
+  --ink:#10315A; --ink2:#2B4A72; --soft:#5B7391;
+  --accent:#E2703A; --teal:#0E6E77; --ok:#2E7D5B; --warn:#B5452B;
+  --bg:#F4F6F9; --card:#FFFFFF; --line:#D9E1EA; --shadow:0 2px 14px rgba(16,49,90,.10);
+  --font:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Hiragino Sans TC",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8EEF6; --ink2:#C3D2E4; --soft:#93A7BF;
+    --accent:#FF8F5C; --teal:#49B3BC; --ok:#5FBF92; --warn:#FF8465;
+    --bg:#0C1623; --card:#142334; --line:#26384D; --shadow:0 2px 16px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8EEF6; --ink2:#C3D2E4; --soft:#93A7BF;
+  --accent:#FF8F5C; --teal:#49B3BC; --ok:#5FBF92; --warn:#FF8465;
+  --bg:#0C1623; --card:#142334; --line:#26384D; --shadow:0 2px 16px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+img{max-width:100%}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font);
+  -webkit-font-smoothing:antialiased; line-height:1.65;
+}
+
+/* ───────── 版面骨架 ───────── */
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 110px}
+header.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+header.top .course{font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.04em}
+header.top .sub{font-size:13px;color:var(--soft)}
+header.top .spacer{flex:1}
+.btn{
+  border:1px solid var(--line); background:var(--card); color:var(--ink);
+  border-radius:9px; padding:7px 12px; font-family:var(--font); font-size:14px;
+  cursor:pointer; line-height:1.2;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{opacity:.9;color:#fff}
+.btn.on{background:var(--teal);border-color:var(--teal);color:#fff}
+select.sel{max-width:210px;font-size:13px;padding:7px 8px}
+select.sel:disabled{opacity:.45}
+body.video header.top{display:none}
+
+/* ───────── 舞台 ───────── */
+.stage{
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  box-shadow:var(--shadow); padding:22px 24px 26px; min-height:560px;
+}
+.chip{
+  display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.08em;
+  color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius:999px; padding:3px 11px; margin-bottom:10px;
+}
+h1.t{font-size:30px; line-height:1.3; margin:0 0 4px; font-weight:800; letter-spacing:-.01em}
+.t2{font-size:16px; color:var(--soft); margin:0 0 16px}
+
+.body{display:grid; grid-template-columns:1.22fr .88fr; gap:22px; align-items:start}
+.body.stack{grid-template-columns:1fr}
+.art{
+  background:color-mix(in srgb, var(--ink) 4%, transparent);
+  border:1px solid var(--line); border-radius:14px; padding:10px; overflow:hidden;
+}
+.art svg{display:block;width:100%;height:auto}
+
+ol.lines{list-style:none; margin:0; padding:0; counter-reset:n}
+ol.lines li{
+  counter-increment:n; position:relative; padding:9px 12px 9px 40px; margin-bottom:7px;
+  border-radius:11px; font-size:17.5px; color:var(--ink2);
+  opacity:0; transform:translateY(8px); transition:opacity .45s ease, transform .45s ease, background .3s;
+}
+ol.lines li.on{opacity:1; transform:none}
+ol.lines li::before{
+  content:counter(n); position:absolute; left:9px; top:11px;
+  width:23px; height:23px; border-radius:50%; font-size:12.5px; font-weight:700;
+  display:grid; place-items:center; color:#fff; background:var(--soft);
+}
+ol.lines li.cur{background:color-mix(in srgb, var(--accent) 10%, transparent); color:var(--ink)}
+ol.lines li.cur::before{background:var(--accent)}
+ol.lines li b{color:var(--accent)}
+ol.lines li .hi{color:var(--teal);font-weight:700}
+ol.lines li small{display:block;font-size:14.5px;color:var(--soft);margin-top:2px}
+
+.eli5{
+  margin-top:18px; border-left:5px solid var(--teal); border-radius:0 12px 12px 0;
+  background:color-mix(in srgb, var(--teal) 9%, transparent);
+  padding:12px 16px; font-size:18px; font-weight:700; color:var(--ink);
+  opacity:0; transform:translateY(8px); transition:opacity .5s, transform .5s;
+}
+.eli5.on{opacity:1;transform:none}
+.eli5 span{display:block;font-size:12.5px;letter-spacing:.1em;color:var(--teal);font-weight:800;margin-bottom:3px}
+
+/* ───────── 控制列 ───────── */
+.bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:40;
+  background:color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter:blur(8px); border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+}
+.bar .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.prog{flex:1;min-width:120px;height:7px;background:var(--line);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.count{font-size:13px;color:var(--soft);font-variant-numeric:tabular-nums}
+
+/* ───────── 章節清單 ───────── */
+.toc{
+  position:fixed; inset:0; z-index:50; background:rgba(8,16,26,.55);
+  display:none; padding:24px 16px; overflow:auto;
+}
+.toc.open{display:block}
+.toc .panel{
+  max-width:720px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)
+}
+.toc h3{margin:0 0 12px;font-size:18px}
+.toc ol{margin:0;padding-left:0;list-style:none;counter-reset:c}
+.toc li{counter-increment:c;padding:0}
+.toc li button{
+  width:100%;text-align:left;border:0;background:transparent;color:var(--ink2);
+  font-family:var(--font);font-size:15.5px;padding:8px 10px;border-radius:9px;cursor:pointer;
+  display:flex;gap:10px;align-items:baseline
+}
+.toc li button:hover{background:color-mix(in srgb, var(--accent) 10%, transparent);color:var(--ink)}
+.toc li button::before{content:counter(c);color:var(--soft);font-size:12.5px;min-width:20px}
+.toc li button.now{color:var(--accent);font-weight:700}
+.toc li button .k{font-size:12px;color:var(--teal);margin-left:auto}
+
+/* ───────── SVG 通用 ───────── */
+[data-at],[data-only]{opacity:0; transition:opacity .55s ease, transform .55s ease}
+[data-at].on,[data-only].on{opacity:1}
+.svtxt{font-family:var(--font); fill:var(--ink); font-size:15px}
+.svsm{font-family:var(--font); fill:var(--soft); font-size:13px}
+.svbig{font-family:var(--font); fill:var(--ink); font-size:21px; font-weight:800}
+/* pathLength="1" 讓每條曲線不論實際長度，都用滿整段動畫時間 */
+.draw.on, .on .draw{animation:dash 1.4s ease both}
+@keyframes dash{
+  from{stroke-dasharray:1; stroke-dashoffset:1}
+  to{stroke-dasharray:1; stroke-dashoffset:0}
+}
+.pop.on, .on > .pop{animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+.grow.on, .on > .grow{animation:grow .9s ease both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ───────── 錄影模式（?video=1）：固定 1280×720、無介面 ───────── */
+body.video{width:1280px;height:720px;overflow:hidden;margin:0}
+body.video header.top, body.video .bar, body.video .toc{display:none}
+body.video .wrap{max-width:none;width:1280px;height:720px;padding:0;
+  display:flex;align-items:center;justify-content:center}
+body.video .stage{width:1232px;min-height:0;transform-origin:center center}
+/* 預置狀態：先把舊內容無動畫地擺好，只讓這一步的新東西動 */
+.prearm *, .prearm{transition:none !important; animation:none !important}
+/* 錄影時版面收緊一點，讓自動縮放少縮一些、字大一些 */
+body.video .stage{padding:16px 20px 18px}
+body.video .chip{margin-bottom:6px}
+body.video h1.t{font-size:27px;margin-bottom:2px}
+body.video .t2{font-size:14.5px;margin-bottom:11px}
+body.video .body{gap:18px;grid-template-columns:1fr 1fr}
+body.video .body.stack{grid-template-columns:1fr}
+body.video .body.stack .art{width:100%;max-width:1060px;justify-self:center}
+/* stack 版面的旁白在錄影時排成兩欄：短句多的練習題頁可以少縮很多 */
+body.video .body.stack ol.lines{columns:2;column-gap:18px}
+body.video .body.stack ol.lines li{break-inside:avoid}
+body.video ol.lines li{font-size:16.5px;padding:6px 10px 6px 34px;margin-bottom:5px}
+body.video ol.lines li::before{width:20px;height:20px;top:9px;left:8px;font-size:11.5px}
+body.video .eli5{margin-top:12px;padding:10px 15px;font-size:16.5px}
+
+@media (max-width:860px){
+  .wrap{padding:14px 16px 120px}
+  .body{grid-template-columns:1fr}
+  h1.t{font-size:24px}
+  ol.lines li{font-size:16px}
+  .eli5{font-size:16.5px}
+  .stage{padding:16px 14px 20px;min-height:0}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="course">生物統計學　第 4 週</div>
+    <div class="sub">分布與假說檢定／臨床診斷的指標　·　白話版教學動畫</div>
+    <div class="spacer"></div>
+    <button class="btn" id="btnVoice">🔈 配音：關</button>
+    <select class="btn sel" id="selVoice" title="選語音"></select>
+    <select class="btn sel" id="selRate" title="語速">
+      <option value="0.8">慢</option>
+      <option value="0.9">稍慢</option>
+      <option value="1" selected>正常</option>
+      <option value="1.1">稍快</option>
+      <option value="1.25">快</option>
+    </select>
+    <button class="btn" id="btnToc">章節</button>
+    <button class="btn" id="btnTheme">深／淺色</button>
+  </header>
+
+  <main class="stage" id="stage"></main>
+</div>
+
+<div class="bar">
+  <div class="in">
+    <button class="btn" id="btnPrev">◀ 上一步</button>
+    <button class="btn primary" id="btnPlay">▶ 自動播放</button>
+    <button class="btn" id="btnNext">下一步 ▶</button>
+    <div class="prog"><i id="progBar"></i></div>
+    <div class="count" id="count"></div>
+  </div>
+</div>
+
+<div class="toc" id="toc">
+  <div class="panel">
+    <h3>章節　<span style="font-size:13px;font-weight:400;color:var(--soft)">點選跳到該段</span></h3>
+    <ol id="tocList"></ol>
+    <div style="margin-top:14px;text-align:right"><button class="btn" id="btnTocClose">關閉</button></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════ 繪圖小工具 ══════════════════ */
+const SQ2PI = Math.sqrt(2*Math.PI);
+const PDF = z => Math.exp(-z*z/2)/SQ2PI;
+const CX = z => 400 + z*82;                     // z → svg x（viewBox 800 寬）
+const CYb = 300;                                 // 基線
+
+function nc(s=1,k=600,z0=-3.9,z1=3.9){           // 常態曲線路徑
+  let d='';
+  for(let i=0;i<=240;i++){
+    const z=z0+(z1-z0)*i/240, y=CYb-(PDF(z/s)/s)*k;
+    d += (i?'L':'M') + CX(z).toFixed(1) + ' ' + y.toFixed(1);
+  }
+  return d;
+}
+function nsh(a,b,s=1,k=600){                      // 曲線下面積
+  let d='M'+CX(a).toFixed(1)+' '+CYb;
+  for(let i=0;i<=90;i++){
+    const z=a+(b-a)*i/90, y=CYb-(PDF(z/s)/s)*k;
+    d += 'L'+CX(z).toFixed(1)+' '+y.toFixed(1);
+  }
+  return d + 'L'+CX(b).toFixed(1)+' '+CYb+'Z';
+}
+function axis(){                                  // 橫軸 + z 刻度
+  let g = `<line x1="40" y1="${CYb}" x2="760" y2="${CYb}" stroke="var(--line)" stroke-width="2"/>`;
+  for(let z=-3;z<=3;z++){
+    g += `<line x1="${CX(z)}" y1="${CYb}" x2="${CX(z)}" y2="${CYb+6}" stroke="var(--line)" stroke-width="2"/>`;
+    g += `<text class="svsm" x="${CX(z)}" y="${CYb+24}" text-anchor="middle">${z===0?'μ':(z>0?'+'+z+'σ':z+'σ')}</text>`;
+  }
+  return g;
+}
+/* 固定種子亂數，讓每次打開看到的圖一樣 */
+let _sd = 20260929;
+function rnd(){ _sd=(_sd*1103515245+12345)&0x7fffffff; return _sd/0x7fffffff; }
+function nrnd(){ return Math.sqrt(-2*Math.log(rnd()||1e-9))*Math.cos(2*Math.PI*rnd()); }
+
+function svg(inner,h=340){
+  return `<svg viewBox="0 0 800 ${h}" role="img">${inner}</svg>`;
+}
+function card(x,y,w,h,fill,at,extra=''){
+  return `<rect class="pop" data-at="${at}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"
+           fill="${fill}" ${extra} style="transform-origin:${x+w/2}px ${y+h/2}px"/>`;
+}
+
+/* ══════════════════ 各場景的圖 ══════════════════ */
+
+const ART = {};
+
+ART.cover = () => svg(`
+  <g data-at="1"><path class="draw" pathLength="1" d="${nc()}" fill="none" stroke="var(--ink)" stroke-width="3.5"/></g>
+  <g data-at="1">${axis()}</g>
+  <g data-at="2"><path d="${nsh(-1.96,1.96)}" fill="color-mix(in srgb, var(--teal) 22%, transparent)"/></g>
+  <g data-at="2"><path d="${nsh(-3.9,-1.96)}" fill="color-mix(in srgb, var(--accent) 40%, transparent)"/>
+                 <path d="${nsh(1.96,3.9)}" fill="color-mix(in srgb, var(--accent) 40%, transparent)"/></g>
+  <g data-at="3"><text class="svbig" x="400" y="150" text-anchor="middle" fill="var(--teal)">95%</text>
+                 <text class="svsm" x="400" y="172" text-anchor="middle">很常見，不懷疑</text></g>
+  <g data-at="3"><text class="svsm" x="150" y="250" text-anchor="middle" fill="var(--accent)">2.5% 罕見</text>
+                 <text class="svsm" x="650" y="250" text-anchor="middle" fill="var(--accent)">2.5% 罕見</text></g>
+`);
+
+ART.map = () => {
+  const items = [['機率分布','有哪些？常態為什麼特別重要','var(--ink)'],
+                 ['p &lt; 0.05','到底在說什麼？誰訂的','var(--accent)'],
+                 ['H0 / H1','拒絕、不拒絕怎麼運作','var(--teal)'],
+                 ['四個臨床指標','敏感度 特異度 PPV NPV','var(--ok)']];
+  let g='';
+  items.forEach((it,i)=>{
+    const x=30+i*192, y=70;
+    g += card(x,y,176,170,'var(--card)',i+1,`stroke="${it[2]}" stroke-width="2.5"`);
+    g += `<g class="pop" data-at="${i+1}" style="transform-origin:${x+88}px ${y+85}px">
+      <circle cx="${x+88}" cy="${y+42}" r="22" fill="${it[2]}"/>
+      <text x="${x+88}" y="${y+50}" text-anchor="middle" font-family="var(--font)" font-size="20" font-weight="800" fill="var(--card)">${i+1}</text>
+      <text class="svtxt" x="${x+88}" y="${y+98}" text-anchor="middle" font-size="18" font-weight="800">${it[0]}</text>
+      <foreignObject x="${x+12}" y="${y+112}" width="152" height="54">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:var(--font);font-size:13.5px;line-height:1.45;color:var(--soft);text-align:center">${it[1]}</div>
+      </foreignObject></g>`;
+  });
+  g += `<g data-at="5"><text class="svsm" x="400" y="286" text-anchor="middle">前半段學「怎麼算機率」　·　後半段學「怎麼讀一張檢驗報告」</text></g>`;
+  return svg(g,310);
+};
+
+ART.whatIsDist = () => {
+  _sd = 4533;                     // 固定種子：每次打開都一樣
+  // 100 顆球落成直方圖
+  const bins=new Array(13).fill(0), pos=[];
+  for(let i=0;i<100;i++){
+    let b=Math.round(nrnd()*2.4)+6; b=Math.max(0,Math.min(12,b));
+    pos.push([b,bins[b]]); bins[b]++;
+  }
+  const bw=46, x0=400-6.5*bw, dy=11;
+  let g = `<line x1="40" y1="${CYb}" x2="760" y2="${CYb}" stroke="var(--line)" stroke-width="2"/>`;
+  g += `<g data-at="1">`;
+  pos.forEach(([b,k],i)=>{
+    const cx=x0+b*bw+bw/2, cy=CYb-6-k*dy;
+    g += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.6"
+            fill="${Math.abs(b-6)<=2?'var(--teal)':'var(--soft)'}" opacity=".85"/>`;
+  });
+  g += `</g>`;
+  g += `<g data-at="2">`;
+  bins.forEach((n,b)=>{ const h=n*dy+6;
+    g += `<rect x="${(x0+b*bw+5).toFixed(1)}" y="${(CYb-h).toFixed(1)}" width="${bw-10}" height="${h.toFixed(1)}"
+            rx="3" fill="color-mix(in srgb, var(--ink) 16%, transparent)"/>`; });
+  g += `</g>`;
+  // 疊上與資料相合的曲線（bin 單位的 sd = 2.4）
+  let d='';
+  for(let i=0;i<=200;i++){
+    const b=-6.5+13*i/200, y=CYb-6-(PDF(b/2.4)/2.4)*100*dy;
+    d += (i?'L':'M')+(400+b*bw).toFixed(1)+' '+y.toFixed(1);
+  }
+  g += `<g data-at="3"><path class="draw" pathLength="1" d="${d}" fill="none" stroke="var(--accent)" stroke-width="3.5"/></g>`;
+  g += `<g data-at="1"><text class="svsm" x="400" y="${CYb+26}" text-anchor="middle">矮　←　身高　→　高</text></g>`;
+  g += `<g data-at="2"><text class="svsm" x="620" y="110" text-anchor="middle">柱子高 = 這個數值的人多</text></g>`;
+  g += `<g data-at="3"><text class="svtxt" x="620" y="80" text-anchor="middle" fill="var(--accent)" font-weight="800">一座山</text></g>`;
+  return svg(g,345);
+};
+
+ART.contDisc = () => {
+  let g = `<g data-at="1">
+    <text class="svtxt" x="210" y="34" text-anchor="middle" font-weight="800">連續型</text>
+    <text class="svsm" x="210" y="54" text-anchor="middle">可以有小數，像水龍頭的水</text>
+    <line x1="40" y1="250" x2="380" y2="250" stroke="var(--line)" stroke-width="2"/></g>`;
+  let d='';
+  for(let i=0;i<=160;i++){ const z=-3+6*i/160; d+=(i?'L':'M')+(210+z*52).toFixed(1)+' '+(250-PDF(z)*420).toFixed(1); }
+  g += `<g data-at="1"><path class="draw" pathLength="1" d="${d}" fill="none" stroke="var(--ink)" stroke-width="3.2"/></g>`;
+  g += `<g data-at="2"><text class="svsm" x="210" y="280" text-anchor="middle">身高、體重、血壓、血糖</text>
+                        <text class="svsm" x="210" y="302" text-anchor="middle" fill="var(--teal)">常態、t、卡方、F</text></g>`;
+
+  g += `<line x1="400" y1="20" x2="400" y2="310" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+
+  g += `<g data-at="3">
+    <text class="svtxt" x="590" y="34" text-anchor="middle" font-weight="800">離散型</text>
+    <text class="svsm" x="590" y="54" text-anchor="middle">一個一個數，像糖果</text>
+    <line x1="430" y1="250" x2="760" y2="250" stroke="var(--line)" stroke-width="2"/></g>`;
+  const hs=[26,62,100,118,96,58,28,12];
+  g += `<g data-at="3">`;
+  hs.forEach((h,i)=>{ g += `<rect class="grow" data-at="3" x="${455+i*38}" y="${250-h}" width="28" height="${h}" rx="3"
+      fill="var(--teal)" opacity=".8" style="transform-origin:${455+i*38}px 250px"/>`; });
+  g += `</g>`;
+  g += `<g data-at="4"><text class="svsm" x="590" y="280" text-anchor="middle">一週跌倒 0、1、2、3 次（沒有 1.5 次）</text>
+                        <text class="svsm" x="590" y="302" text-anchor="middle" fill="var(--teal)">白努利、二項、卜瓦松……</text></g>`;
+  return svg(g,320);
+};
+
+ART.twoNumbers = () => {
+  let g = axis();
+  g += `<g data-at="1"><path class="draw" pathLength="1" d="${nc(1,420)}" fill="none" stroke="var(--ink)" stroke-width="3.5"/>
+    <line x1="${CX(0)}" y1="${CYb}" x2="${CX(0)}" y2="${(CYb-PDF(0)*420).toFixed(1)}" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <text class="svtxt" x="${CX(0)}" y="${(CYb-PDF(0)*420-12).toFixed(1)}" text-anchor="middle" fill="var(--accent)" font-weight="800">μ 在這裡</text></g>`;
+  g += `<g data-at="2"><path d="${nc(0.6,420)}" fill="none" stroke="var(--teal)" stroke-width="3" stroke-dasharray="7 5"/>
+    <line x1="636" y1="44" x2="664" y2="44" stroke="var(--teal)" stroke-width="3" stroke-dasharray="7 5"/>
+    <text class="svsm" x="672" y="49" fill="var(--teal)" font-weight="700">σ 小 → 又高又瘦</text>
+    <text class="svsm" x="672" y="69">大家都很接近</text></g>`;
+  g += `<g data-at="3"><path d="${nc(1.7,420)}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 5"/>
+    <line x1="636" y1="104" x2="664" y2="104" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 5"/>
+    <text class="svsm" x="672" y="109" fill="var(--accent)" font-weight="700">σ 大 → 又矮又胖</text>
+    <text class="svsm" x="672" y="129">每個人差很多</text></g>`;
+  g += `<g data-at="4"><rect x="250" y="340" width="300" height="42" rx="10" fill="color-mix(in srgb, var(--teal) 14%, transparent)"/>
+    <text class="svtxt" x="400" y="367" text-anchor="middle" font-weight="800">μ 決定中心　σ 決定胖瘦</text></g>`;
+  return svg(g,392);
+};
+
+ART.rule689599 = () => {
+  const bands=[[1,'68%','var(--teal)'],[2,'95%','var(--accent)'],[3,'99.7%','var(--ok)']];
+  let g='';
+  bands.forEach((b,i)=>{
+    g += `<g data-at="${i+1}"><path d="${nsh(-b[0],b[0])}"
+      fill="color-mix(in srgb, ${b[2]} ${26-i*7}%, transparent)" stroke="${b[2]}" stroke-width="1.5"/></g>`;
+  });
+  g += `<path d="${nc()}" fill="none" stroke="var(--ink)" stroke-width="3.5"/>` + axis();
+  bands.forEach((b,i)=>{
+    const y=140+i*48;
+    g += `<g class="pop" data-at="${i+1}" style="transform-origin:400px ${y}px">
+      <text class="svbig" x="400" y="${y}" text-anchor="middle" fill="${b[2]}">±${b[0]}σ　${b[1]}</text></g>`;
+  });
+  g += `<g data-at="4"><text class="svsm" x="400" y="${CYb+48}" text-anchor="middle">所以「離平均超過 2 個標準差」已經是不到 5% 的少數</text></g>`;
+  return svg(g,365);
+};
+
+ART.areaProb = () => {
+  _sd = 10;                         // 固定種子：剛好 68 個落在 ±1σ
+  let g = `<g data-at="1"><path d="${nc()}" fill="none" stroke="var(--ink)" stroke-width="3.5"/></g>` + axis();
+  g += `<g data-at="2"><path d="${nsh(-3.9,3.9)}" fill="color-mix(in srgb, var(--ink) 10%, transparent)"/>
+    <text class="svtxt" x="648" y="120" text-anchor="middle">整塊面積 = 1 = 100%</text></g>`;
+  g += `<g data-at="3" data-until="4"><path d="${nsh(-1,0)}" fill="color-mix(in srgb, var(--accent) 45%, transparent)"/>
+    <text class="svtxt" x="${CX(-0.5)}" y="240" text-anchor="middle" font-weight="800">34.1%</text>
+    <text class="svsm" x="150" y="118" text-anchor="middle" fill="var(--accent)" font-weight="700">-1σ 到 0：面積 0.341</text></g>`;
+  g += `<g data-at="4" data-until="4"><text class="svsm" x="150" y="150" text-anchor="middle">分子 = 橘色這一塊</text>
+    <text class="svsm" x="150" y="172" text-anchor="middle">分母 = 整塊灰色</text>
+    <text class="svsm" x="150" y="194" text-anchor="middle" font-weight="700">分子 ÷ 分母 = 34.1%</text></g>`;
+  g += `<g data-at="5"><path d="${nsh(-1,1)}" fill="color-mix(in srgb, var(--teal) 28%, transparent)"/></g>`;
+  // 100 個點
+  let pts='';
+  for(let i=0;i<100;i++){
+    let z=nrnd(); z=Math.max(-3.4,Math.min(3.4,z));
+    const top=CYb-PDF(z)*600, y=top+(CYb-top)*(0.12+rnd()*0.82);
+    pts += `<circle cx="${CX(z).toFixed(1)}" cy="${y.toFixed(1)}" r="4.2"
+        fill="${Math.abs(z)<=1?'var(--teal)':'var(--soft)'}" opacity=".9"/>`;
+  }
+  g += `<g data-at="5">${pts}
+    <text class="svtxt" x="400" y="34" text-anchor="middle" font-weight="800" fill="var(--teal)">丟 100 個人進去，68 個落在藍色區</text></g>`;
+  return svg(g,345);
+};
+
+ART.zscore = () => {
+  let g = `<g data-at="1">
+    <text class="svsm" x="170" y="30" text-anchor="middle">男生身高　μ = 148、σ = 2.5</text>
+    <text class="svsm" x="170" y="178" text-anchor="middle">女生身高　μ = 152、σ = 3.5</text></g>`;
+  // 兩條各自的小曲線
+  const mini=(cx,cy,s,col)=>{ let d=''; for(let i=0;i<=120;i++){const z=-3+6*i/120;
+      d+=(i?'L':'M')+(cx+z*38).toFixed(1)+' '+(cy-(PDF(z/s)/s)*150).toFixed(1);}
+    return `<path class="draw" pathLength="1" d="${d}" fill="none" stroke="${col}" stroke-width="3"/>
+            <line x1="${cx-120}" y1="${cy}" x2="${cx+120}" y2="${cy}" stroke="var(--line)" stroke-width="2"/>`; };
+  g += `<g data-at="1">${mini(170,140,0.75,'var(--ink)')}${mini(170,288,1.25,'var(--teal)')}</g>`;
+  g += `<g data-at="2"><path d="M320 212 L420 212" stroke="var(--accent)" stroke-width="3.5"/>
+    <path d="M420 212 l-13 -8 l0 16 Z" fill="var(--accent)"/>
+    <text class="svtxt" x="370" y="196" text-anchor="middle" fill="var(--accent)" font-weight="800">標準化</text>
+    <text class="svsm" x="370" y="236" text-anchor="middle">Z = (x - μ) / σ</text></g>`;
+  let d2=''; for(let i=0;i<=160;i++){const z=-3.6+7.2*i/160; d2+=(i?'L':'M')+(620+z*42).toFixed(1)+' '+(275-PDF(z)*440).toFixed(1);}
+  g += `<g data-at="3"><path class="draw" pathLength="1" d="${d2}" fill="none" stroke="var(--accent)" stroke-width="3.5"/>
+    <line x1="470" y1="275" x2="775" y2="275" stroke="var(--line)" stroke-width="2"/>
+    <text class="svtxt" x="620" y="60" text-anchor="middle" font-weight="800" fill="var(--accent)">標準常態分布</text>
+    <text class="svsm" x="620" y="82" text-anchor="middle">μ = 0　σ = 1　一張表通吃</text>
+    <text class="svsm" x="620" y="298" text-anchor="middle">-3　　-2　　-1　　0　　+1　　+2　　+3</text></g>`;
+  g += `<g data-at="4"><rect x="455" y="312" width="330" height="60" rx="10" fill="color-mix(in srgb, var(--teal) 13%, transparent)"/>
+    <text class="svtxt" x="620" y="336" text-anchor="middle">146 公分的男生</text>
+    <text class="svtxt" x="620" y="359" text-anchor="middle" font-weight="800" fill="var(--teal)">Z = (146 - 148) / 2.5 = -0.8</text></g>`;
+  return svg(g,384);
+};
+
+ART.zread = () => {
+  const X = z => 400+z*95;
+  let g = `<line x1="40" y1="170" x2="760" y2="170" stroke="var(--line)" stroke-width="3"/>`;
+  for(let z=-3;z<=3;z++)
+    g += `<line x1="${X(z)}" y1="164" x2="${X(z)}" y2="176" stroke="var(--line)" stroke-width="2"/>
+          <text class="svsm" x="${X(z)}" y="196" text-anchor="middle">${z}</text>`;
+  const marks=[[0,'Z = 0','剛好是平均','var(--ink)',1,-1],
+               [1,'Z = +1','約 84% 的人比他低','var(--teal)',2,1],
+               [-2,'Z = -2','只有約 2.3% 的人更低','var(--teal)',3,1],
+               [1.96,'±1.96','雙尾 5% 臨界值','var(--accent)',4,-1],
+               [2.58,'±2.58','雙尾 1% 臨界值','var(--accent)',5,1]];
+  marks.forEach(([z,a,b,c,at,dir])=>{
+    const y = dir<0 ? 92 : 248;
+    g += `<g class="pop" data-at="${at}" style="transform-origin:${X(z)}px 170px">
+      <line x1="${X(z)}" y1="170" x2="${X(z)}" y2="${dir<0?y+14:y-20}" stroke="${c}" stroke-width="2.5"/>
+      <circle cx="${X(z)}" cy="170" r="7" fill="${c}"/>
+      <text class="svtxt" x="${X(z)}" y="${y}" text-anchor="middle" font-weight="800" fill="${c}">${a}</text>
+      <text class="svsm" x="${X(z)}" y="${y+19}" text-anchor="middle">${b}</text></g>`;
+    if(Math.abs(z)>1.5) g += `<g class="pop" data-at="${at}" style="transform-origin:${X(-z)}px 170px">
+      <line x1="${X(-z)}" y1="170" x2="${X(-z)}" y2="${dir<0?y+14:y-20}" stroke="${c}" stroke-width="2.5"/>
+      <circle cx="${X(-z)}" cy="170" r="7" fill="${c}"/></g>`;
+  });
+  g += `<g data-at="6"><text class="svsm" x="400" y="320" text-anchor="middle">Z 的單位是「幾個標準差」，跟公分、mmHg 這些原始單位無關</text></g>`;
+  return svg(g,335);
+};
+
+ART.bag = () => {
+  let g = `<g data-at="1">
+    <path d="M90 120 q0 -40 60 -40 q60 0 60 40 l18 150 q2 24 -22 24 h-112 q-24 0 -22 -24 Z"
+      fill="color-mix(in srgb, var(--ink) 12%, transparent)" stroke="var(--ink)" stroke-width="2.5"/>
+    <text class="svtxt" x="150" y="210" text-anchor="middle" font-weight="800">母體</text>
+    <text class="svsm" x="150" y="232" text-anchor="middle">裡面有幾顆、</text>
+    <text class="svsm" x="150" y="250" text-anchor="middle">分數怎麼配？不知道</text></g>`;
+  g += `<g data-at="2"><path d="M240 180 L330 180" stroke="var(--accent)" stroke-width="3.5"/>
+    <path d="M330 180 l-13 -8 l0 16 Z" fill="var(--accent)"/>
+    <text class="svsm" x="285" y="166" text-anchor="middle" fill="var(--accent)">抽 4 顆</text></g>`;
+  [0,1,2,3].forEach(i=>{
+    g += `<g class="pop" data-at="2" style="transform-origin:${375+i*52}px 180px">
+      <circle cx="${375+i*52}" cy="180" r="22" fill="var(--teal)"/>
+      <text x="${375+i*52}" y="188" text-anchor="middle" font-family="var(--font)" font-size="18" font-weight="800" fill="#fff">${[1,1,1,1][i]}</text></g>`;
+  });
+  g += `<g data-at="2"><text class="svtxt" x="453" y="236" text-anchor="middle" font-weight="800">樣本平均 = 1</text></g>`;
+  const cands=[['4 顆 1 分','都抽到了'],['20 顆裡 6 顆 1 分','運氣普通'],['100 顆裡 4 顆 1 分','運氣很好'],];
+  cands.forEach((c,i)=>{
+    g += `<g class="pop" data-at="${3+i}" style="transform-origin:685px ${70+i*86}px">
+      <rect x="575" y="${44+i*86}" width="210" height="62" rx="11" fill="var(--card)" stroke="var(--soft)" stroke-width="2"/>
+      <text class="svtxt" x="680" y="${70+i*86}" text-anchor="middle" font-size="15.5" font-weight="700">${c[0]}</text>
+      <text class="svsm" x="680" y="${90+i*86}" text-anchor="middle">${c[1]}　機率不是 0</text></g>`;
+  });
+  g += `<g data-at="6"><text class="svtxt" x="680" y="310" text-anchor="middle" fill="var(--warn)" font-weight="800">無限多種可能 → 猜不出來</text></g>`;
+  return svg(g,330);
+};
+
+ART.dice = () => {
+  const X = p => 70 + p*6.6;          // 0~100% → x
+  const s = 7.6;                       // 以 % 為單位的標準差
+  const Y = p => CYb - PDF((p-16.7)/s)*560;
+  let d='';
+  for(let i=0;i<=220;i++){ const p=-5+110*i/220; d += (i?'L':'M')+X(p).toFixed(1)+' '+Y(p).toFixed(1); }
+
+  // 山的中央（常見）與右尾（罕見）
+  let mid='M'+X(16.7-10).toFixed(1)+' '+CYb;
+  for(let i=0;i<=60;i++){ const p=16.7-10+20*i/60; mid+='L'+X(p).toFixed(1)+' '+Y(p).toFixed(1); }
+  mid += 'L'+X(16.7+10).toFixed(1)+' '+CYb+'Z';
+  let tail='M'+X(38).toFixed(1)+' '+CYb;
+  for(let i=0;i<=60;i++){ const p=38+62*i/60; tail+='L'+X(p).toFixed(1)+' '+Y(p).toFixed(1); }
+  tail += 'L'+X(100).toFixed(1)+' '+CYb+'Z';
+
+  let g = `<g data-at="1">
+    <path d="${mid}" fill="color-mix(in srgb, var(--teal) 18%, transparent)"/>
+    <path class="draw" pathLength="1" d="${d}" fill="none" stroke="var(--ink)" stroke-width="3.2"/>
+    <line x1="40" y1="${CYb}" x2="770" y2="${CYb}" stroke="var(--line)" stroke-width="2"/>
+    <line x1="${X(16.7)}" y1="${CYb}" x2="${X(16.7)}" y2="${Y(16.7).toFixed(1)}" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <text class="svtxt" x="${X(16.7)}" y="${(Y(16.7)-14).toFixed(1)}" text-anchor="middle" fill="var(--accent)" font-weight="800">假設公正 16.7%</text></g>`;
+  for(let p=0;p<=100;p+=20)
+    g += `<g data-at="1"><text class="svsm" x="${X(p)}" y="${CYb+24}" text-anchor="middle">${p}%</text></g>`;
+  g += `<g data-at="1"><text class="svsm" x="400" y="${CYb+52}" text-anchor="middle">25～31 次當中「擲出六點的比例」</text></g>`;
+
+  g += `<g class="pop" data-at="2" style="transform-origin:${X(12)}px ${CYb-14}px">
+    <circle cx="${X(12)}" cy="${CYb-14}" r="11" fill="var(--teal)"/>
+    <text class="svtxt" x="${X(12)}" y="${CYb-62}" text-anchor="middle" fill="var(--teal)" font-weight="800">某甲 12%</text>
+    <text class="svsm" x="${X(12)}" y="${CYb-42}" text-anchor="middle" fill="var(--teal)">山的中間 · 很常見</text></g>`;
+
+  g += `<g data-at="3"><path d="${tail}" fill="color-mix(in srgb, var(--warn) 45%, transparent)"/></g>`;
+  g += `<g class="pop" data-at="3" style="transform-origin:${X(71)}px ${CYb-14}px">
+    <circle cx="${X(71)}" cy="${CYb-14}" r="11" fill="var(--warn)"/>
+    <text class="svtxt" x="${X(71)}" y="${CYb-62}" text-anchor="middle" fill="var(--warn)" font-weight="800">某乙 71%</text>
+    <text class="svsm" x="${X(71)}" y="${CYb-42}" text-anchor="middle" fill="var(--warn)">山腳下 · 太罕見了</text></g>`;
+
+  g += `<g data-at="4"><rect x="210" y="${CYb+66}" width="380" height="44" rx="10" fill="color-mix(in srgb, var(--warn) 12%, transparent)"/>
+    <text class="svtxt" x="400" y="${CYb+94}" text-anchor="middle" font-weight="800" fill="var(--warn)">結論：某乙的骰子可能不公正</text></g>`;
+  return svg(g,420);
+};
+
+ART.target = () => {
+  let g = `<g data-at="1">`;
+  [[96,'var(--soft)'],[68,'var(--card)'],[42,'var(--soft)'],[18,'var(--accent)']].forEach(([r,c])=>{
+    g += `<circle cx="210" cy="170" r="${r}" fill="${c}" stroke="var(--ink)" stroke-width="2" opacity=".9"/>`;
+  });
+  g += `<text class="svtxt" x="210" y="296" text-anchor="middle" font-weight="800">虛無假設 H0</text>
+        <text class="svsm" x="210" y="316" text-anchor="middle">「沒事發生」—— 拿來打的靶</text></g>`;
+  g += `<g data-at="2"><line x1="420" y1="90" x2="232" y2="156" stroke="var(--teal)" stroke-width="4"/>
+    <path d="M232 156 l20 -2 l-8 -14 Z" fill="var(--teal)"/>
+    <text class="svtxt" x="470" y="86" fill="var(--teal)" font-weight="800">打中了</text>
+    <text class="svsm" x="470" y="108">p &lt; 0.05 → 拒絕 H0 → 「有顯著差異」</text></g>`;
+  g += `<g data-at="3"><line x1="430" y1="268" x2="330" y2="250" stroke="var(--soft)" stroke-width="4"/>
+    <path d="M330 250 l19 -6 l-4 -16 Z" fill="var(--soft)"/>
+    <text class="svtxt" x="470" y="232" fill="var(--soft)" font-weight="800">沒打中</text>
+    <text class="svsm" x="470" y="254">p ≧ 0.05 → 不拒絕 H0</text></g>`;
+  g += `<g data-at="4"><rect x="455" y="130" width="320" height="72" rx="11"
+      fill="color-mix(in srgb, var(--warn) 12%, transparent)" stroke="var(--warn)" stroke-width="2"/>
+    <text class="svtxt" x="615" y="158" text-anchor="middle" font-weight="800" fill="var(--warn)">不拒絕 ≠ 接受</text>
+    <text class="svsm" x="615" y="182" text-anchor="middle">查無證據，不等於證明無罪</text></g>`;
+  return svg(g,340);
+};
+
+ART.pvalue = () => {
+  let g = `<path d="${nsh(-1.96,1.96)}" fill="color-mix(in srgb, var(--teal) 16%, transparent)"/>`;
+  g += `<g data-at="2"><path d="${nsh(-3.9,-1.96)}" fill="color-mix(in srgb, var(--accent) 45%, transparent)"/>
+    <path d="${nsh(1.96,3.9)}" fill="color-mix(in srgb, var(--accent) 45%, transparent)"/></g>`;
+  g += `<path d="${nc()}" fill="none" stroke="var(--ink)" stroke-width="3.5"/>` + axis();
+  g += `<g data-at="1"><text class="svtxt" x="400" y="150" text-anchor="middle" font-weight="800" fill="var(--teal)">不拒絕 H0 的區域</text>
+    <text class="svsm" x="400" y="172" text-anchor="middle">95%　「這結果很常見」</text></g>`;
+  g += `<g data-at="2">
+    <text class="svtxt" x="140" y="200" text-anchor="middle" fill="var(--accent)" font-weight="800">2.5%</text>
+    <text class="svtxt" x="660" y="200" text-anchor="middle" fill="var(--accent)" font-weight="800">2.5%</text>
+    <text class="svsm" x="140" y="222" text-anchor="middle">拒絕區</text>
+    <text class="svsm" x="660" y="222" text-anchor="middle">拒絕區</text></g>`;
+  g += `<g data-at="3"><line x1="${CX(-1.96)}" y1="${CYb}" x2="${CX(-1.96)}" y2="60" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>
+    <line x1="${CX(1.96)}" y1="${CYb}" x2="${CX(1.96)}" y2="60" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>
+    <text class="svsm" x="${CX(-1.96)}" y="50" text-anchor="middle" fill="var(--accent)">-1.96</text>
+    <text class="svsm" x="${CX(1.96)}" y="50" text-anchor="middle" fill="var(--accent)">+1.96</text></g>`;
+  g += `<g class="pop" data-at="4" style="transform-origin:${CX(2.4)}px 288px">
+    <circle cx="${CX(2.4)}" cy="${CYb-12}" r="10" fill="var(--warn)"/>
+    <text class="svsm" x="${CX(2.4)}" y="${CYb+46}" text-anchor="middle" fill="var(--warn)">我的資料落在這 → 拒絕 H0</text></g>`;
+  return svg(g,360);
+};
+
+ART.pwrong = () => {
+  const items=[
+    ['○','p = 0.03 的正確讀法','如果 H0 是真的，出現這種（或更極端）結果的機率是 3%。3% 比 5% 小 → 拒絕 H0','var(--ok)'],
+    ['×','「H0 為真的機率是 3%」','錯。p 值是在「假設 H0 為真」這個前提下算出來的，它不能反過來當成 H0 的機率','var(--warn)'],
+    ['×','「p 愈小，差異愈大」','錯。樣本數大的時候，很小的差異也會算出很小的 p。要知道差多少，請看效果量','var(--warn)'],
+  ];
+  let g='';
+  items.forEach((it,i)=>{
+    const y=16+i*106;
+    g += `<g class="pop" data-at="${i+1}" style="transform-origin:400px ${y+46}px">
+      <rect x="30" y="${y}" width="740" height="92" rx="12" fill="var(--card)" stroke="${it[3]}" stroke-width="2.5"/>
+      <circle cx="74" cy="${y+46}" r="24" fill="${it[3]}"/>
+      <text x="74" y="${y+55}" text-anchor="middle" font-family="var(--font)" font-size="24" font-weight="800" fill="#fff">${it[0]}</text>
+      <text class="svtxt" x="116" y="${y+36}" font-size="17.5" font-weight="800">${it[1]}</text>
+      <foreignObject x="116" y="${y+44}" width="636" height="44">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:var(--font);font-size:14.5px;line-height:1.5;color:var(--soft)">${it[2]}</div>
+      </foreignObject></g>`;
+  });
+  return svg(g,336);
+};
+
+ART.tea = () => {
+  let g = `<g data-at="1"><text class="svtxt" x="400" y="32" text-anchor="middle" font-weight="800">8 杯奶茶，4 杯先加奶、4 杯先加茶，隨機排列</text></g>`;
+  for(let i=0;i<8;i++){
+    const x=70+i*86, milk=[1,0,0,1,0,1,1,0][i];
+    g += `<g class="pop" data-at="${i<4?2:2}" style="transform-origin:${x+28}px 120px">
+      <path d="M${x} 78 h56 l-7 68 q-2 14 -21 14 q-19 0 -21 -14 Z"
+        fill="${milk?'color-mix(in srgb, var(--accent) 30%, var(--card))':'color-mix(in srgb, var(--teal) 26%, var(--card))'}"
+        stroke="var(--ink)" stroke-width="2"/>
+      <ellipse cx="${x+28}" cy="78" rx="28" ry="7" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+      <text class="svsm" x="${x+28}" y="182" text-anchor="middle">${milk?'先加奶':'先加茶'}</text></g>`;
+  }
+  g += `<g data-at="3"><rect x="130" y="206" width="540" height="56" rx="11"
+      fill="color-mix(in srgb, var(--teal) 12%, transparent)"/>
+    <text class="svtxt" x="400" y="230" text-anchor="middle">如果她是亂猜的，4 杯全中的機率</text>
+    <text class="svtxt" x="400" y="254" text-anchor="middle" font-weight="800" fill="var(--teal)">1 / 70 ≒ 1.4%</text></g>`;
+  g += `<g data-at="4"><text class="svtxt" x="400" y="296" text-anchor="middle" font-weight="800" fill="var(--accent)">1.4% 太小了 → 她不是亂猜的（她真的全部答對）</text></g>`;
+  return svg(g,315);
+};
+
+ART.tails = () => {
+  const k=380;
+  let g = `<g data-at="1"><text class="svtxt" x="210" y="26" text-anchor="middle" font-weight="800">雙尾檢定</text>
+    <text class="svsm" x="210" y="46" text-anchor="middle">H1：μ ≠ 227（大小都算有差）</text></g>`;
+  const mini=(ox,at,cuts,crit,lab)=>{
+    const X=z=>ox+z*44, Y=p=>250-p*k;
+    let d=''; for(let i=0;i<=180;i++){const z=-3.6+7.2*i/180; d+=(i?'L':'M')+X(z).toFixed(1)+' '+Y(PDF(z)).toFixed(1);}
+    let sh='';
+    cuts.forEach(([a,b])=>{ let q='M'+X(a).toFixed(1)+' 250';
+      for(let i=0;i<=50;i++){const z=a+(b-a)*i/50; q+='L'+X(z).toFixed(1)+' '+Y(PDF(z)).toFixed(1);}
+      sh += `<path d="${q}L${X(b).toFixed(1)} 250Z" fill="color-mix(in srgb, var(--accent) 45%, transparent)"/>`; });
+    let out = `<g data-at="${at}">${sh}<path class="draw" pathLength="1" d="${d}" fill="none" stroke="var(--ink)" stroke-width="3.2"/>
+      <line x1="${ox-170}" y1="250" x2="${ox+170}" y2="250" stroke="var(--line)" stroke-width="2"/>`;
+    crit.forEach(c=>{ out += `<line x1="${X(c)}" y1="250" x2="${X(c)}" y2="${Y(PDF(c))-16}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>
+      <text class="svsm" x="${X(c)}" y="${Y(PDF(c))-22}" text-anchor="middle" fill="var(--accent)" font-weight="700">${c>0?'+':''}${c}</text>`; });
+    out += `<text class="svtxt" x="${ox}" y="282" text-anchor="middle" font-size="15.5">${lab}</text></g>`;
+    return out;
+  };
+  g += mini(210,1,[[-3.6,-1.96],[1.96,3.6]],[-1.96,1.96],'各切 2.5%　臨界值 ±1.96');
+  g += `<line x1="400" y1="16" x2="400" y2="300" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+  g += `<g data-at="2"><text class="svtxt" x="590" y="26" text-anchor="middle" font-weight="800">單尾檢定</text>
+    <text class="svsm" x="590" y="46" text-anchor="middle">H1：μ &gt; 227（只算一個方向）</text></g>`;
+  g += mini(590,2,[[1.645,3.6]],[1.645],'一邊切 5%　臨界值 1.645');
+  g += `<g data-at="3"><rect x="150" y="312" width="500" height="44" rx="10"
+      fill="color-mix(in srgb, var(--warn) 12%, transparent)"/>
+    <text class="svtxt" x="400" y="340" text-anchor="middle" font-weight="800" fill="var(--warn)">1.645 &lt; 1.96 → 單尾比較容易顯著，所以規定比較嚴</text></g>`;
+  return svg(g,368);
+};
+
+ART.ci = () => {
+  const trueX = 420, sc = 46;
+  let g = `<g data-at="1"><line x1="${trueX}" y1="24" x2="${trueX}" y2="306" stroke="var(--accent)" stroke-width="3"/>
+    <text class="svtxt" x="${trueX}" y="18" text-anchor="middle" fill="var(--accent)" font-weight="800">真正的 μ（只有上帝知道）</text></g>`;
+  _sd = 123;
+  const se = 0.62;                       // 標準誤（示意）
+  for(let i=0;i<20;i++){
+    const m = nrnd()*se, half = 1.96*se;
+    const miss = Math.abs(m) > half;
+    const y = 36 + i*13.4, x1 = trueX + (m-half)*sc, x2 = trueX + (m+half)*sc;
+    const col = miss ? 'var(--warn)' : 'var(--teal)';
+    g += `<g data-at="${i<10?2:3}">
+      <line x1="${x1.toFixed(1)}" y1="${y}" x2="${x2.toFixed(1)}" y2="${y}" stroke="${col}" stroke-width="3.4"/>
+      <line x1="${x1.toFixed(1)}" y1="${y-4}" x2="${x1.toFixed(1)}" y2="${y+4}" stroke="${col}" stroke-width="3"/>
+      <line x1="${x2.toFixed(1)}" y1="${y-4}" x2="${x2.toFixed(1)}" y2="${y+4}" stroke="${col}" stroke-width="3"/>
+      <circle cx="${(trueX+m*sc).toFixed(1)}" cy="${y}" r="3.4" fill="${col}"/></g>`;
+  }
+  g += `<g data-at="4"><text class="svsm" x="650" y="130" fill="var(--teal)">大多數的區間蓋住了 μ</text>
+    <text class="svsm" x="650" y="152" fill="var(--warn)">少數幾條沒蓋到（約 5%）</text>
+    <text class="svtxt" x="650" y="190" font-weight="800">會動的是「區間」</text>
+    <text class="svtxt" x="650" y="212" font-weight="800" fill="var(--accent)">不是「真值」</text></g>`;
+  g += `<g data-at="1"><text class="svsm" x="150" y="130">每一條 = 一次研究</text>
+    <text class="svsm" x="150" y="152">算出來的 95% CI</text></g>`;
+  return svg(g,320);
+};
+
+ART.ciP = () => {
+  const X = v => 90 + (v-222)*62;
+  let g = `<g data-at="1"><line x1="60" y1="250" x2="760" y2="250" stroke="var(--line)" stroke-width="2"/>`;
+  for(let v=223;v<=232;v++) g += `<line x1="${X(v)}" y1="250" x2="${X(v)}" y2="258" stroke="var(--line)" stroke-width="2"/>
+    <text class="svsm" x="${X(v)}" y="276" text-anchor="middle">${v}</text>`;
+  g += `<line x1="${X(227)}" y1="40" x2="${X(227)}" y2="250" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 5"/>
+    <text class="svtxt" x="${X(227)}" y="32" text-anchor="middle" fill="var(--accent)" font-weight="800">H0：μ = 227</text></g>`;
+  const bars=[[228.1,231.5,'var(--ok)','不含 227　→　p &lt; 0.05　顯著',80,2],
+              [225.2,228.8,'var(--soft)','含 227　→　p ≧ 0.05　不顯著',160,3]];
+  bars.forEach(([a,b,c,lab,y,at])=>{
+    g += `<g data-at="${at}">
+      <line x1="${X(a)}" y1="${y}" x2="${X(b)}" y2="${y}" stroke="${c}" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="${X((a+b)/2)}" cy="${y}" r="7" fill="${c}"/>
+      <text class="svtxt" x="${X(b)+16}" y="${y+6}" font-size="15.5" fill="${c}" font-weight="700">${lab}</text>
+      <text class="svsm" x="${X(a)}" y="${y-16}">[${a}, ${b}]</text></g>`;
+  });
+  g += `<g data-at="4"><rect x="130" y="296" width="540" height="46" rx="10"
+      fill="color-mix(in srgb, var(--teal) 12%, transparent)"/>
+    <text class="svtxt" x="400" y="324" text-anchor="middle" font-weight="800">兩組比較看 CI 有沒有跨過 0　·　OR／RR／HR 看有沒有跨過 1</text></g>`;
+  return svg(g,352);
+};
+
+ART.steps6 = () => {
+  const st=[['寫 H0 與 H1','同時決定單尾或雙尾'],
+            ['設定 α','通常 0.05，收資料前決定'],
+            ['選統計方法','看資料型態與研究目標'],
+            ['算檢定統計量','交給 JASP／SPSS'],
+            ['比較做決策','p &lt; α → 拒絕 H0'],
+            ['解釋＋看效果量','不能只講顯不顯著']];
+  let g='';
+  st.forEach((s,i)=>{
+    const col = i%3, row = Math.floor(i/3);
+    const x = 30+col*252, y = 30+row*150;
+    g += `<g class="pop" data-at="${i+1}" style="transform-origin:${x+114}px ${y+60}px">
+      <rect x="${x}" y="${y}" width="228" height="120" rx="13" fill="var(--card)"
+        stroke="${i<5?'var(--ink)':'var(--accent)'}" stroke-width="2.5"/>
+      <circle cx="${x+34}" cy="${y+34}" r="20" fill="${i<5?'var(--ink)':'var(--accent)'}"/>
+      <text x="${x+34}" y="${y+42}" text-anchor="middle" font-family="var(--font)" font-size="18" font-weight="800" fill="var(--card)">${i+1}</text>
+      <text class="svtxt" x="${x+64}" y="${y+41}" font-size="17" font-weight="800">${s[0]}</text>
+      <foreignObject x="${x+16}" y="${y+58}" width="196" height="54">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:var(--font);font-size:14px;line-height:1.5;color:var(--soft)">${s[1]}</div>
+      </foreignObject></g>`;
+    if(col<2) g += `<g data-at="${i+2}"><path d="M${x+234} ${y+60} L${x+248} ${y+60}" stroke="var(--accent)" stroke-width="3"/>
+      <path d="M${x+250} ${y+60} l-9 -6 l0 12 Z" fill="var(--accent)"/></g>`;
+  });
+  return svg(g,340);
+};
+
+ART.table2x2 = () => {
+  const x0=180, y0=70, cw=170, ch=76;
+  let g = `<g data-at="1">
+    <text class="svtxt" x="${x0+cw}" y="42" text-anchor="middle" font-weight="800">真實狀態（答案）</text>
+    <text class="svsm" x="${x0+cw/2}" y="${y0-8}" text-anchor="middle">真的有病 100 人</text>
+    <text class="svsm" x="${x0+cw*1.5}" y="${y0-8}" text-anchor="middle">真的沒病 100 人</text>
+    <text class="svsm" x="${x0-14}" y="${y0+ch/2+5}" text-anchor="end">檢驗陽性</text>
+    <text class="svsm" x="${x0-14}" y="${y0+ch*1.5+5}" text-anchor="end">檢驗陰性</text></g>`;
+  const cells=[[0,0,'90','TP 驗對了','var(--ok)'],[1,0,'30','FP 誤判','var(--warn)'],
+               [0,1,'10','FN 漏掉','var(--warn)'],[1,1,'70','TN 驗對了','var(--ok)']];
+  cells.forEach(([c,r,n,lab,col])=>{
+    const x=x0+c*cw, y=y0+r*ch;
+    g += `<g class="pop" data-at="1" style="transform-origin:${x+cw/2}px ${y+ch/2}px">
+      <rect x="${x}" y="${y}" width="${cw}" height="${ch}" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+      <text class="svbig" x="${x+cw/2}" y="${y+36}" text-anchor="middle" fill="${col}">${n}</text>
+      <text class="svsm" x="${x+cw/2}" y="${y+58}" text-anchor="middle">${lab}</text></g>`;
+  });
+  const hl=[[2,x0,y0,cw,ch*2,'敏感度 = 90/(90+10) = 90%','var(--teal)',x0+cw/2,y0+ch*2+30,'middle'],
+            [3,x0+cw,y0,cw,ch*2,'特異度 = 70/(70+30) = 70%','var(--teal)',x0+cw*1.5,y0+ch*2+30,'middle'],
+            [4,x0,y0,cw*2,ch,'PPV = 90/(90+30) = 75%','var(--accent)',x0+cw*2+16,y0+ch/2,'start'],
+            [5,x0,y0+ch,cw*2,ch,'NPV = 70/(70+10) = 87.5%','var(--accent)',x0+cw*2+16,y0+ch*1.5,'start']];
+  hl.forEach(([at,x,y,w,h,lab,col,tx,ty,anchor])=>{
+    g += `<g data-only="${at}"><rect x="${x-4}" y="${y-4}" width="${w+8}" height="${h+8}" rx="7"
+        fill="none" stroke="${col}" stroke-width="4"/>
+      <text class="svtxt" x="${tx}" y="${ty}" text-anchor="${anchor}" font-weight="800" fill="${col}" font-size="16">${lab}</text></g>`;
+  });
+  g += `<g data-at="6"><text class="svtxt" x="400" y="286" text-anchor="middle" font-size="16">敏感度／特異度看<tspan fill="var(--teal)" font-weight="800">直行</tspan>（分母是真實狀態）</text>
+    <text class="svtxt" x="400" y="310" text-anchor="middle" font-size="16">PPV／NPV 看<tspan fill="var(--accent)" font-weight="800">橫列</tspan>（分母是檢驗結果）</text></g>`;
+  return svg(g,330);
+};
+
+ART.prevalence = () => {
+  const grid=(ox,oy,real,at,title,sub,ppv)=>{
+    let out = `<g data-at="${at}"><text class="svtxt" x="${ox+90}" y="${oy-34}" text-anchor="middle" font-weight="800">${title}</text>
+      <text class="svsm" x="${ox+90}" y="${oy-14}" text-anchor="middle">${sub}</text>`;
+    for(let i=0;i<100;i++){
+      const r=Math.floor(i/10), c=i%10;
+      const on = i < real;
+      out += `<rect x="${ox+c*18}" y="${oy+r*18}" width="14" height="14" rx="3"
+        fill="${on?'var(--warn)':'color-mix(in srgb, var(--ink) 13%, transparent)'}"/>`;
+    }
+    out += `<text class="svtxt" x="${ox+90}" y="${oy+206}" text-anchor="middle" font-size="19" font-weight="800" fill="var(--warn)">PPV = ${ppv}</text>
+      <text class="svsm" x="${ox+90}" y="${oy+228}" text-anchor="middle">每 100 張陽性報告，真的有病 ${real} 張</text></g>`;
+    return out;
+  };
+  let g = `<g data-at="1"><text class="svtxt" x="400" y="24" text-anchor="middle" font-weight="800">同一個檢驗（敏感度 90%、特異度 70%），換兩個地方用</text>
+    <text class="svsm" x="400" y="46" text-anchor="middle">紅色 = 真的有病　·　灰色 = 其實沒病（偽陽性）</text></g>`;
+  g += grid(110,100,75,2,'臨床試驗：收案 100 病 : 100 健康','盛行率 50%','75%');
+  g += grid(510,100,3,3,'社區普篩：盛行率 1%','10,000 人裡只有 100 人有病','2.9%');
+  g += `<g data-at="4"><rect x="150" y="346" width="500" height="46" rx="10"
+      fill="color-mix(in srgb, var(--warn) 13%, transparent)"/>
+    <text class="svtxt" x="400" y="374" text-anchor="middle" font-weight="800" fill="var(--warn)">檢驗沒變，是人群變了</text></g>`;
+  return svg(g,404);
+};
+
+ART.tradeoff = () => {
+  let g = `<g data-at="1"><line x1="400" y1="110" x2="400" y2="160" stroke="var(--soft)" stroke-width="6"/>
+    <path d="M360 160 h80 l14 20 h-108 Z" fill="var(--soft)"/>
+    <g style="transform:rotate(-8deg);transform-origin:400px 110px">
+      <rect x="180" y="100" width="440" height="14" rx="7" fill="var(--ink)"/>
+      <circle cx="200" cy="80" r="30" fill="var(--teal)"/>
+      <text x="200" y="86" text-anchor="middle" font-family="var(--font)" font-size="14" font-weight="800" fill="#fff">敏感度</text>
+      <circle cx="600" cy="126" r="30" fill="var(--accent)"/>
+      <text x="600" y="132" text-anchor="middle" font-family="var(--font)" font-size="14" font-weight="800" fill="#fff">特異度</text>
+    </g>
+    <text class="svsm" x="400" y="200" text-anchor="middle">一邊升，另一邊通常就降 —— 這是永遠的取捨</text></g>`;
+  const st=[['第一關：篩檢','高敏感度　不要漏掉病人','var(--teal)'],
+            ['第二關：確診','高特異度　不要誤判健康人','var(--accent)'],
+            ['結果','抓得到病人，又不會讓太多健康人白跑','var(--ok)']];
+  st.forEach((s,i)=>{
+    const x=30+i*256;
+    g += `<g class="pop" data-at="${i+2}" style="transform-origin:${x+114}px 292px">
+      <rect x="${x}" y="236" width="228" height="112" rx="12" fill="var(--card)" stroke="${s[2]}" stroke-width="2.5"/>
+      <text class="svtxt" x="${x+114}" y="268" text-anchor="middle" font-weight="800" fill="${s[2]}">${s[0]}</text>
+      <foreignObject x="${x+16}" y="${280}" width="196" height="60">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:var(--font);font-size:14px;line-height:1.5;color:var(--soft);text-align:center">${s[1]}</div>
+      </foreignObject></g>`;
+    if(i<2) g += `<g data-at="${i+3}"><path d="M${x+234} 292 L${x+250} 292" stroke="var(--accent)" stroke-width="3"/>
+      <path d="M${x+252} 292 l-9 -6 l0 12 Z" fill="var(--accent)"/></g>`;
+  });
+  g += `<g data-at="5"><text class="svsm" x="400" y="372" text-anchor="middle">例：子宮頸抹片（高敏感度）→ 陽性者做陰道鏡與切片（高特異度）</text></g>`;
+  return svg(g,386);
+};
+
+ART.summary = () => {
+  const lines=[['常態分布','讓我們能算機率','var(--teal)'],
+               ['假設檢定','用機率來否定假設','var(--ink)'],
+               ['盛行率','決定你該多相信一張報告','var(--accent)']];
+  let g='';
+  lines.forEach((l,i)=>{
+    const y=40+i*86;
+    g += `<g class="pop" data-at="${i+1}" style="transform-origin:400px ${y+32}px">
+      <rect x="80" y="${y}" width="640" height="68" rx="13"
+        fill="color-mix(in srgb, ${l[2]} 10%, transparent)" stroke="${l[2]}" stroke-width="2.5"/>
+      <text class="svtxt" x="120" y="${y+43}" font-size="22" font-weight="800" fill="${l[2]}">${l[0]}</text>
+      <text class="svtxt" x="300" y="${y+43}" font-size="19">${l[1]}</text></g>`;
+  });
+  g += `<g data-at="4"><text class="svtxt" x="400" y="320" text-anchor="middle" font-size="19" font-weight="800">如果只記得一件事：我們從來不「證明」什麼，我們只「否定」</text></g>`;
+  return svg(g,345);
+};
+
+ART.homework = () => {
+  const hw=[['1','查 Z 表','某社區成人收縮壓 μ = 122、σ = 12（假設常態）<br>(a) 高於 140 mmHg 的比例？　(b) 介於 110～130 的比例？'],
+            ['2','解釋 p = 0.03','用自己的話說明它的意思，再寫出兩種常見錯誤解讀並說明錯在哪'],
+            ['3','PPV 換算','某快篩：敏感度 85%、特異度 96%<br>(a) 盛行率 20% 門診族群的 PPV？　(b) 盛行率 0.5% 社區普篩的 PPV？　(c) 這個差異對衛教的意義']];
+  let g = `<g data-at="1"><text class="svtxt" x="400" y="28" text-anchor="middle" font-weight="800">本週不需要資料檔，用計算機或 Excel 即可　·　請寫出計算過程</text></g>`;
+  hw.forEach((h,i)=>{
+    const y=50+i*104;
+    g += `<g class="pop" data-at="${i+1}" style="transform-origin:400px ${y+44}px">
+      <rect x="30" y="${y}" width="740" height="90" rx="12" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+      <circle cx="72" cy="${y+44}" r="22" fill="var(--accent)"/>
+      <text x="72" y="${y+52}" text-anchor="middle" font-family="var(--font)" font-size="20" font-weight="800" fill="#fff">${h[0]}</text>
+      <text class="svtxt" x="110" y="${y+32}" font-size="17" font-weight="800">${h[1]}</text>
+      <foreignObject x="110" y="${y+40}" width="646" height="46">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:var(--font);font-size:14.5px;line-height:1.5;color:var(--soft)">${h[2]}</div>
+      </foreignObject></g>`;
+  });
+  g += `<g data-at="4"><text class="svsm" x="400" y="378" text-anchor="middle">答案打成投影片，下課前上傳</text></g>`;
+  return svg(g,392);
+};
+
+
+/* ── 補充場景的圖（對照 w04.py 補齊的頁面） ───────────────── */
+
+ART.clt = () => {
+  // 左：很歪的母體
+  const hs = [118, 150, 120, 88, 62, 44, 31, 22, 15, 10, 7, 4];
+  let g = `<g data-at="1"><text class="svtxt" x="150" y="40" text-anchor="middle" font-weight="800">母體</text>
+    <text class="svsm" x="150" y="60" text-anchor="middle">長得很歪也沒關係</text>
+    <line x1="30" y1="250" x2="270" y2="250" stroke="var(--line)" stroke-width="2"/>`;
+  hs.forEach((h, i) => { g += `<rect x="${36 + i * 19}" y="${250 - h}" width="15" height="${h}" rx="2" fill="var(--soft)" opacity=".75"/>`; });
+  g += `</g>`;
+  // 中：箭頭
+  g += `<g data-at="2"><path d="M288 160 L368 160" stroke="var(--accent)" stroke-width="3.5"/>
+    <path d="M371 160 l-13 -8 l0 16 Z" fill="var(--accent)"/>
+    <text class="svsm" x="328" y="128" text-anchor="middle" fill="var(--accent)">每次抽 n 人</text>
+    <text class="svsm" x="328" y="146" text-anchor="middle" fill="var(--accent)">算平均</text>
+    <text class="svsm" x="328" y="186" text-anchor="middle" fill="var(--accent)">重複很多次</text></g>`;
+  // 右：抽樣分布
+  const ox = 590, X = z => ox + z * 52, Y = p => 250 - p * 430;
+  let d = '';
+  for (let i = 0; i <= 180; i++) { const z = -3.6 + 7.2 * i / 180; d += (i ? 'L' : 'M') + X(z).toFixed(1) + ' ' + Y(PDF(z)).toFixed(1); }
+  g += `<g data-at="2"><path class="draw" pathLength="1" d="${d}" fill="none" stroke="var(--teal)" stroke-width="3.5"/>
+    <line x1="${ox - 196}" y1="250" x2="${ox + 196}" y2="250" stroke="var(--line)" stroke-width="2"/>
+    <text class="svtxt" x="${ox}" y="38" text-anchor="middle" font-weight="800" fill="var(--teal)">樣本平均數的抽樣分布</text>
+    <text class="svsm" x="${ox}" y="58" text-anchor="middle">n 夠大 → 趨近常態</text></g>`;
+  g += `<g data-at="3"><line x1="${ox}" y1="250" x2="${ox}" y2="${Y(PDF(0)).toFixed(1)}" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <text class="svtxt" x="${ox}" y="274" text-anchor="middle" fill="var(--accent)" font-weight="800">中心 = μ</text></g>`;
+  const yb = +Y(PDF(1)).toFixed(1);
+  g += `<g data-at="4"><line x1="${X(0)}" y1="${yb}" x2="${X(1)}" y2="${yb}" stroke="var(--ink)" stroke-width="2.5"/>
+    <line x1="${X(1)}" y1="${yb - 7}" x2="${X(1)}" y2="${yb + 7}" stroke="var(--ink)" stroke-width="2.5"/>
+    <text class="svtxt" x="${X(1) + 26}" y="${yb + 5}" font-weight="800">SE = σ / √n</text>
+    <text class="svsm" x="${X(1) + 26}" y="${yb + 25}">n 愈大，山愈瘦</text></g>`;
+  g += `<g data-at="5"><text class="svsm" x="${ox}" y="298" text-anchor="middle">X 軸：每次抽樣算出的樣本平均數</text>
+    <text class="svsm" x="${ox}" y="318" text-anchor="middle">Y 軸：得到這個平均數的可能性（機率密度）</text></g>`;
+  g += `<g data-at="6"><rect x="130" y="334" width="540" height="44" rx="10" fill="color-mix(in srgb, var(--teal) 13%, transparent)"/>
+    <text class="svtxt" x="400" y="362" text-anchor="middle" font-weight="800">畫得出這條曲線 → 就能算機率 → 假設檢定的基礎</text></g>`;
+  return svg(g, 390);
+};
+
+ART.zpractice = () => {
+  const P = [
+    [0, 1.76, '(1)　0 ≦ Z ≦ 1.76', '= 0.4608'],
+    [1.76, 3.6, '(2)　Z ≧ 1.76', '0.5 - 0.4608 = 0.0392'],
+    [0.56, 1.77, '(3)　0.56 ≦ Z ≦ 1.77', '0.4616 - 0.2123 = 0.2493'],
+    [-2.05, 0, '(4)　-2.05 ≦ Z ≦ 0', '= 0.4798（左右對稱）'],
+    [-0.93, 0.55, '(5)　-0.93 ≦ Z ≦ +0.55', '0.3238 + 0.2088 = 0.5326'],
+    [-1.14, -0.38, '(6)　-1.14 ≦ Z ≦ -0.38', '0.3729 - 0.1480 = 0.2249'],
+  ];
+  let g = '';
+  P.forEach(([a, b, lab, ans], i) => {
+    const col = i % 3, row = Math.floor(i / 3);
+    const ox = 18 + col * 258, oy = 8 + row * 148, cx = ox + 121;
+    const X = z => cx + z * 31, base = oy + 112, Y = p => base - p * 170;
+    let d = '';
+    for (let k = 0; k <= 120; k++) { const z = -3.6 + 7.2 * k / 120; d += (k ? 'L' : 'M') + X(z).toFixed(1) + ' ' + Y(PDF(z)).toFixed(1); }
+    let sh = 'M' + X(a).toFixed(1) + ' ' + base;
+    for (let k = 0; k <= 50; k++) { const z = a + (b - a) * k / 50; sh += 'L' + X(z).toFixed(1) + ' ' + Y(PDF(z)).toFixed(1); }
+    sh += 'L' + X(b).toFixed(1) + ' ' + base + 'Z';
+    const cross = a < 0 && b > 0;                 // 跨過中間 → 異號相加
+    g += `<g class="pop" data-at="${i + 1}" style="transform-origin:${cx}px ${oy + 70}px">
+      <rect x="${ox}" y="${oy}" width="242" height="140" rx="11" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+      <text class="svtxt" x="${cx}" y="${oy + 23}" text-anchor="middle" font-size="14.5" font-weight="800">${lab}</text>
+      <path d="${sh}" fill="color-mix(in srgb, ${cross ? 'var(--accent)' : 'var(--teal)'} 45%, transparent)"/>
+      <path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2.2"/>
+      <line x1="${ox + 10}" y1="${base}" x2="${ox + 232}" y2="${base}" stroke="var(--line)" stroke-width="1.5"/>
+      <line x1="${cx}" y1="${base}" x2="${cx}" y2="${base + 5}" stroke="var(--soft)" stroke-width="1.5"/>
+      <text class="svsm" x="${cx}" y="${oy + 132}" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="700">${ans}</text></g>`;
+  });
+  g += `<g data-at="7"><text class="svsm" x="400" y="310" text-anchor="middle">藍色 = 在中間的同一側　·　橘色 = 跨過中間（異號相加）</text></g>`;
+  return svg(g, 320);
+};
+
+ART.rawz = () => {
+  const P = [
+    { name: '男生', mu: 148, sd: 2.5, lo: 146, hi: 151, z1: -0.8, z2: 1.2, a1: '0.2881', a2: '0.3849', sum: '0.6730 → 67.30%', at: 1, col: 'var(--ink)' },
+    { name: '女生', mu: 152, sd: 3.5, lo: 149, hi: 157, z1: -0.86, z2: 1.43, a1: '0.3051', a2: '0.4236', sum: '0.7287 → 72.87%', at: 4, col: 'var(--teal)' },
+  ];
+  let g = '';
+  P.forEach(q => {
+    const ox = (q.at === 1 ? 14 : 407), cx = ox + 186, X = z => cx + z * 46, base = 196, Y = p => base - p * 260;
+    let d = '';
+    for (let k = 0; k <= 150; k++) { const z = -3.6 + 7.2 * k / 150; d += (k ? 'L' : 'M') + X(z).toFixed(1) + ' ' + Y(PDF(z)).toFixed(1); }
+    let sh = 'M' + X(q.z1).toFixed(1) + ' ' + base;
+    for (let k = 0; k <= 60; k++) { const z = q.z1 + (q.z2 - q.z1) * k / 60; sh += 'L' + X(z).toFixed(1) + ' ' + Y(PDF(z)).toFixed(1); }
+    sh += 'L' + X(q.z2).toFixed(1) + ' ' + base + 'Z';
+    g += `<g data-at="${q.at}">
+      <rect x="${ox}" y="6" width="372" height="300" rx="12" fill="var(--card)" stroke="${q.col}" stroke-width="2"/>
+      <text class="svtxt" x="${cx}" y="34" text-anchor="middle" font-weight="800" fill="${q.col}">${q.name}　μ = ${q.mu}、σ = ${q.sd}</text>
+      <text class="svsm" x="${cx}" y="56" text-anchor="middle">介於 ${q.lo} 到 ${q.hi} 公分的比例？</text>
+      <path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2.6"/>
+      <line x1="${ox + 14}" y1="${base}" x2="${ox + 358}" y2="${base}" stroke="var(--line)" stroke-width="2"/>
+      <text class="svsm" x="${X(q.z1)}" y="${base + 19}" text-anchor="middle">${q.lo}</text>
+      <text class="svsm" x="${cx}" y="${base + 19}" text-anchor="middle">${q.mu}</text>
+      <text class="svsm" x="${X(q.z2)}" y="${base + 19}" text-anchor="middle">${q.hi}</text></g>`;
+    g += `<g data-at="${q.at + 1}">
+      <text class="svsm" x="${X(q.z1)}" y="${base + 39}" text-anchor="middle" fill="var(--accent)" font-weight="700">Z = ${q.z1}</text>
+      <text class="svsm" x="${X(q.z2)}" y="${base + 39}" text-anchor="middle" fill="var(--accent)" font-weight="700">Z = +${q.z2}</text>
+      <text class="svsm" x="${cx}" y="${base + 61}" text-anchor="middle">Z = (x - ${q.mu}) / ${q.sd}</text></g>`;
+    g += `<g data-at="${q.at + 2}"><path d="${sh}" fill="color-mix(in srgb, var(--accent) 40%, transparent)"/>
+      <line x1="${cx}" y1="${base}" x2="${cx}" y2="${Y(PDF(0)).toFixed(1)}" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="4 4"/>
+      <text class="svsm" x="${cx - 5}" y="${base - 12}" text-anchor="end" font-weight="700" fill="var(--ink)">${q.a1}</text>
+      <text class="svsm" x="${cx + 5}" y="${base - 12}" text-anchor="start" font-weight="700" fill="var(--ink)">${q.a2}</text>
+      <text class="svtxt" x="${cx}" y="${base + 92}" text-anchor="middle" font-weight="800" fill="var(--accent)">${q.a1} + ${q.a2} = ${q.sum}</text></g>`;
+  });
+  return svg(g, 314);
+};
+
+ART.falsify = () => {
+  const X = p => 50 + p * 7.0;                 // 0~100% → 50~750
+  const cands = [5, 10, 16.7, 25, 35, 45, 60, 71, 80, 92];
+  const rejected = [5, 10, 25, 35, 45, 92];    // 22/31 的 95% 區間約 55%～87%，區間外的都被否定
+  let g = `<g data-at="1"><line x1="40" y1="200" x2="760" y2="200" stroke="var(--line)" stroke-width="3"/>
+    <text class="svtxt" x="400" y="40" text-anchor="middle" font-weight="800">某乙的骰子，擲出六點的「真正」機率是多少？</text>`;
+  for (let p = 0; p <= 100; p += 20) g += `<text class="svsm" x="${X(p)}" y="228" text-anchor="middle">${p}%</text>`;
+  cands.forEach(p => { g += `<circle cx="${X(p)}" cy="200" r="9" fill="var(--soft)"/>`; });
+  g += `</g>`;
+  g += `<g class="pop" data-at="2" style="transform-origin:${X(16.7)}px 200px">
+    <path d="M${X(16.7) - 14} 186 l28 28 M${X(16.7) + 14} 186 l-28 28" stroke="var(--warn)" stroke-width="5" stroke-linecap="round"/>
+    <text class="svtxt" x="${X(16.7) + 6}" y="166" text-anchor="middle" fill="var(--warn)" font-weight="800">否定：不是 16.7%</text></g>`;
+  g += `<g data-at="3"><rect x="${X(71) - 118}" y="86" width="236" height="40" rx="20" fill="color-mix(in srgb, var(--ink) 9%, transparent)"/>
+    <text class="svsm" x="${X(71)}" y="111" text-anchor="middle">真值在哪裡？只有上帝知道</text></g>`;
+  g += `<g data-at="4"><rect x="${X(55)}" y="186" width="${X(87) - X(55)}" height="28" rx="8" fill="color-mix(in srgb, var(--teal) 24%, transparent)"/>`;
+  rejected.forEach(p => {
+    g += `<path d="M${X(p) - 10} 190 l20 20 M${X(p) + 10} 190 l-20 20" stroke="var(--warn)" stroke-width="4" stroke-linecap="round"/>`;
+  });
+  g += `<text class="svsm" x="${X(71)}" y="256" text-anchor="middle" fill="var(--teal)" font-weight="700">還沒被否定的範圍：愈縮愈小</text></g>`;
+  g += `<g data-at="5"><rect x="130" y="286" width="540" height="46" rx="10" fill="color-mix(in srgb, var(--accent) 12%, transparent)"/>
+    <text class="svtxt" x="400" y="315" text-anchor="middle" font-weight="800">一個一個否定，逐步逼近 —— 否證邏輯（證偽法）</text></g>`;
+  return svg(g, 346);
+};
+
+ART.myths = () => {
+  const items = [
+    ['誤解一', '「準確率 95%，所以我驗出陽性，有 95% 的機率有病」'],
+    ['誤解二', '「快篩陰性，所以我一定沒有感染」'],
+    ['誤解三', '「敏感度愈高的檢驗愈好」'],
+  ];
+  let g = '';
+  items.forEach((it, i) => {
+    const y = 18 + i * 108;
+    g += `<g class="pop" data-at="${i + 1}" style="transform-origin:400px ${y + 46}px">
+      <rect x="30" y="${y}" width="740" height="92" rx="12" fill="var(--card)" stroke="var(--warn)" stroke-width="2.5"/>
+      <circle cx="78" cy="${y + 46}" r="26" fill="var(--warn)"/>
+      <text x="78" y="${y + 55}" text-anchor="middle" font-family="var(--font)" font-size="24" font-weight="800" fill="#fff">×</text>
+      <text class="svsm" x="122" y="${y + 34}" font-weight="700" fill="var(--warn)">${it[0]}</text>
+      <text class="svtxt" x="122" y="${y + 64}" font-size="19" font-weight="800">${it[1]}</text></g>`;
+  });
+  return svg(g, 346);
+};
+
+ART.practice = () => {
+  const rows = [
+    ['看到「陰性」報告', 'NPV', 'var(--accent)'],
+    ['看到「陽性」報告', 'PPV', 'var(--accent)'],
+    ['衛教說明', 'PPV（不是敏感度）', 'var(--accent)'],
+    ['看廠商簡報', '自己換算 PPV', 'var(--accent)'],
+    ['導入某個篩檢工具', '敏感度、特異度', 'var(--teal)'],
+    ['評估篩檢方案效益', 'PPV ＋ 後續檢查量能', 'var(--teal)'],
+  ];
+  let g = `<g data-at="1"><text class="svsm" x="60" y="28" font-weight="700">情境</text>
+    <text class="svsm" x="470" y="28" font-weight="700">要看哪個指標</text>
+    <line x1="40" y1="40" x2="760" y2="40" stroke="var(--line)" stroke-width="2"/></g>`;
+  rows.forEach((r, i) => {
+    const y = 50 + i * 52;
+    g += `<g class="pop" data-at="${i + 1}" style="transform-origin:400px ${y + 22}px">
+      <rect x="40" y="${y}" width="720" height="44" rx="9" fill="color-mix(in srgb, ${r[2]} 8%, var(--card))" stroke="var(--line)" stroke-width="1.5"/>
+      <text class="svtxt" x="60" y="${y + 28}" font-size="17">${r[0]}</text>
+      <path d="M396 ${y + 22} L446 ${y + 22}" stroke="${r[2]}" stroke-width="2.5"/>
+      <path d="M449 ${y + 22} l-9 -6 l0 12 Z" fill="${r[2]}"/>
+      <text class="svtxt" x="470" y="${y + 28}" font-size="17" font-weight="800" fill="${r[2]}">${r[1]}</text></g>`;
+  });
+  return svg(g, 366);
+};
+
+function glossArt(items, cols) {
+  let g = '';
+  const gap = 14, w = cols === 3 ? 236 : 360;
+  items.forEach((it, i) => {
+    const c = i % cols, r = Math.floor(i / cols);
+    const x = 30 + c * (w + gap), y = 14 + r * 112;
+    g += `<g class="pop" data-at="${i + 1}" style="transform-origin:${x + w / 2}px ${y + 48}px">
+      <rect x="${x}" y="${y}" width="${w}" height="96" rx="12" fill="var(--card)" stroke="${it[2]}" stroke-width="2.5"/>
+      <text class="svtxt" x="${x + w / 2}" y="${y + 41}" text-anchor="middle" font-size="22" font-weight="800" fill="${it[2]}">${it[0]}</text>
+      <text class="svsm" x="${x + w / 2}" y="${y + 72}" text-anchor="middle" font-size="16">${it[1]}</text></g>`;
+  });
+  return g;
+}
+ART.gloss1 = () => svg(glossArt([
+  ['常態分布', 'μ 定中心、σ 定寬度', 'var(--ink)'],
+  ['Z 分數', '(x - μ) / σ', 'var(--ink)'],
+  ['虛無假設 H0', '被拿來打的靶', 'var(--teal)'],
+  ['對立假設 H1', '真正想證明的', 'var(--teal)'],
+  ['顯著水準 α', '慣例 0.05，事前決定', 'var(--accent)'],
+  ['p 值', 'H0 為真時的機率', 'var(--accent)'],
+], 3), 236);
+ART.gloss2 = () => svg(glossArt([
+  ['敏感度', 'TP / (TP + FN)', 'var(--teal)'],
+  ['特異度', 'TN / (TN + FP)', 'var(--teal)'],
+  ['PPV 陽性預測值', 'TP / (TP + FP)', 'var(--accent)'],
+  ['NPV 陰性預測值', 'TN / (TN + FN)', 'var(--accent)'],
+  ['盛行率', '決定 PPV 與 NPV', 'var(--warn)'],
+], 2), 348);
+
+
+/* ══════════════════ 場景內容 ══════════════════ */
+const SCENES = [
+{ ch:'開場', t:'第 4 週：分布與假說檢定', t2:'用最白話的方式，把這一週的投影片講一遍',
+  art:ART.cover, layout:'side',
+  lines:[[1,'統計在做的事情，說穿了就是<b>算機率</b>：這個結果有多常見？'],
+         [2,'常見的放中間，罕見的放兩邊 —— 兩邊那一小塊就是「太巧了，我不信」。'],
+         [3,'今天要學的是統計的<b>「思考方式」</b>：這張圖怎麼來的、怎麼用，還有怎麼讀一張檢驗報告。']],
+  eli5:'統計不「證明」任何事，它只會說：這個說法不太可能對。' },
+
+{ ch:'開場', t:'今天四件事', t2:'前兩件是觀念，後兩件是你以後在臨床天天用',
+  art:ART.map, layout:'side',
+  lines:[[1,'<b>機率分布</b>有哪些？為什麼常態分布特別重要？'],
+         [2,'<b>p &lt; 0.05</b> 到底在說什麼？0.05 是誰訂的？'],
+         [3,'<b>H0、H1、拒絕、不拒絕</b> —— 這一套怎麼運作？'],
+         [4,'<b>敏感度、特異度、PPV、NPV</b>：臨床最常用的四個指標。'],
+         [5,'前半段學「怎麼算機率」，後半段學「怎麼讀一張報告」。']],
+  eli5:'前半段是數學課，後半段是臨床課 —— 但它們是同一件事。' },
+
+{ ch:'機率分布', t:'什麼叫「分布」', t2:'先別管公式，先看圖',
+  art:ART.whatIsDist, layout:'side',
+  lines:[[1,'量 100 個人的身高，一個人就是一個點。'],
+         [2,'把點疊起來數高度：中間的人最多，很高很矮的人很少。'],
+         [3,'把這些柱子的頂端連起來 —— 就是<b>一座山</b>。'],
+         [4,'山的高度 = 這個數值有多常出現。這張圖就叫<span class="hi">分布</span>。']],
+  eli5:'分布就是一張「常見／罕見」的地圖。山頂是常見，山腳是罕見。' },
+
+{ ch:'機率分布', t:'連續型 vs 離散型', t2:'這學期會遇到的分布，分兩大家族',
+  art:ART.contDisc, layout:'side',
+  lines:[[1,'<b>連續型</b>：數值可以是任何小數。身高、體重、血壓、血糖都是 —— 身高 160.3 公分很合理。'],
+         [2,'這學期會用到四種連續分布：<span class="hi">常態分布、t 分布（W07）、卡方分布（W08）、F 分布（W11）</span>。後面三種全部是從常態分布延伸出來的。'],
+         [3,'<b>離散型</b>：數值只能是整數或分類。人數、次數、發生／不發生 —— 一週跌倒 0、1、2 次，沒有 1.5 次。'],
+         [4,'常見的有<span class="hi">白努利分布</span>（發生或不發生）、<span class="hi">二項分布</span>（n 次裡成功幾次）、<span class="hi">卜瓦松分布</span>（一小時來幾個病人），還有幾何分布、負二項分布、超幾何分布。']],
+  eli5:'連續型像水龍頭的水，離散型像一顆一顆的糖果。' },
+
+{ ch:'常態分布', t:'接上週：中央極限定理說了什麼', t2:'這一頁是上週與今天的接點 —— 沒接上就會全部斷掉',
+  art:ART.clt, layout:'side',
+  lines:[[1,'上週的<b>中央極限定理</b>：不管母體長什麼樣子 —— 就算歪成左邊這樣 ——'],
+         [2,'只要 n 夠大，<b>樣本平均數</b>的抽樣分布就會趨近<span class="hi">常態分布</span>。'],
+         [3,'這條抽樣分布的平均數 = 母體平均數 μ。'],
+         [4,'它的標準差 = σ / √n，這個數字叫<b>標準誤 SE</b>。n 愈大，這座山愈瘦。'],
+         [5,'X 軸是每次抽樣算出的樣本平均數；Y 軸是得到這個平均數的可能性，可以當成機率密度。'],
+         [6,'所以只要畫得出這條常態曲線，就能<b>算機率</b> —— 而「能算機率」就是整個假設檢定的基礎。']],
+  eli5:'母體長得再怪，「很多次抽樣的平均」排起來都會變成一座鐘型山。' },
+
+{ ch:'常態分布', t:'常態分布：兩個數字就決定一切', t2:'先把常態分布徹底搞懂 —— t、卡方、F 都只是它的變形',
+  art:ART.twoNumbers, layout:'side',
+  lines:[[1,'<b>μ（平均數）</b>決定山峰在哪裡 —— 整座山往左還是往右。'],
+         [2,'<b>σ（標準差）</b>決定這座山有多胖。σ 小 → 又高又瘦，大家都很接近。'],
+         [3,'σ 大 → 又矮又胖，每個人差很多。'],
+         [4,'知道 μ 和 σ，整條曲線就<span class="hi">固定</span>了。曲線固定 → 任何範圍的機率都算得出來。'],
+         [5,'補充：常態分布左右完全對稱，平均數在正中間，所以「大於 μ」和「小於 μ」的機率都是 50%；而且三個中心指標重合：平均數 = 中位數 = 眾數。'],
+         [5,'但實務資料很難完美常態，平均數和中位數通常不會剛好一樣 —— 要靠<span class="hi">偏態與峰度</span>判斷偏離多嚴重。']],
+  eli5:'常態分布只要問兩件事：中心在哪、散得多開。' },
+
+{ ch:'常態分布', t:'68 - 95 - 99.7 法則', t2:'整學期最該背的三個數字',
+  art:ART.rule689599, layout:'side',
+  lines:[[1,'離平均 <b>1 個標準差</b>以內 → 約 <span class="hi">68%</span> 的人。'],
+         [2,'<b>2 個標準差</b>以內 → 約 <span class="hi">95%</span>。'],
+         [3,'<b>3 個標準差</b>以內 → 約 <span class="hi">99.7%</span>。'],
+         [4,'反過來看：離平均超過 2 個標準差的人，<b>不到 5%</b> —— 這就是後面 0.05 的來源。']],
+  eli5:'68、95、99.7。背起來，後面整學期都在用。' },
+
+{ ch:'常態分布', t:'為什麼「面積」就是「機率」', t2:'考試不會叫你積分，但這個觀念不能缺',
+  art:ART.areaProb, layout:'side',
+  lines:[[1,'常態分布曲線的正式名稱叫<b>機率密度圖</b>。'],
+         [2,'曲線下方的<span class="hi">總面積 = 1</span>，也就是 100%。'],
+         [3,'某一段範圍下的面積 = 落在那段範圍的<b>機率</b>。例：-1σ 到 0 之間的面積是 0.341 → 有 <span class="hi">34.1%</span> 的機率落在這個範圍。'],
+         [4,'概念上怎麼算：<b>分子</b>＝把 -1σ 到 0 之間所有 y 值加起來；<b>分母</b>＝把整條曲線所有 y 值加起來；分子 ÷ 分母 = 34.1%。'],
+         [5,'丟 100 個人進去，大約 68 個落在 ±1σ 這塊藍色區域裡 —— 面積 68%，機率 68%。'],
+         [6,'數學上這叫「對機率密度函數積分」，但你不用會算 —— 考試不會叫你積分，你只要知道<b>面積 = 機率</b>。']],
+  eli5:'面積 = 機率。那塊有多大，機率就是多少。' },
+
+{ ch:'標準化', t:'Z 分數：把所有的尺統一', t2:'一個很實務的問題，和它的解法',
+  art:ART.zscore, layout:'side',
+  lines:[[1,'男生身高 μ=148、σ=2.5；女生 μ=152、σ=3.5；血壓、血糖、成績每組都不一樣。'],
+         [1,'難道每一組都要重畫一條曲線、重算一次面積？查不完。'],
+         [2,'解法：先<b>標準化</b> —— 把原始值換算成「離平均數幾個標準差」。公式是 <span class="hi">Z = (x - μ) / σ</span>。'],
+         [3,'換算完，<b>任何</b>一組資料都會變成 μ=0、σ=1 的同一條曲線 → 一張 Z 表通吃。'],
+         [4,'例：146 公分的男生 → Z = (146 - 148) / 2.5 = <b>-0.8</b>，意思是「比平均矮 0.8 個標準差」。']],
+  eli5:'不管原本量公分還是量血壓，先換成「離平均幾步」，就能互相比較。' },
+
+{ ch:'標準化', t:'Z 分數怎麼讀', t2:'這幾個數字整學期都會再看到',
+  art:ART.zread, layout:'side',
+  lines:[[1,'<b>Z = 0</b>：剛好等於平均數。'],
+         [2,'<b>Z = +1</b>：比平均高 1 個標準差 —— 約 84% 的人比他低。'],
+         [3,'<b>Z = -2</b>：比平均低 2 個標準差 —— 只有約 2.3% 的人比他更低。'],
+         [4,'<b>Z = ±1.96</b>：雙尾 5% 的臨界值。<span class="hi">這個數字今天之後會出現一百次。</span>'],
+         [5,'<b>Z = ±2.58</b>：雙尾 1% 的臨界值。'],
+         [6,'查表步驟永遠是：① 換成 Z　② 畫草圖把要的區域塗黑　③ 查表　④ 加減（同號相減、異號相加）。']],
+  eli5:'Z 的單位是「幾個標準差」，跟公分、mmHg 無關。' },
+
+{ ch:'標準化', t:'練習：用 Z 表算面積', t2:'Z 表給的通常是「0 到 Z」之間的面積 —— 先看清楚表格的定義再查',
+  art:ART.zpractice, layout:'stack',
+  lines:[[1,'題目：查表求以下 Z 值範圍所對應的面積（機率）。(1) 0 ≦ Z ≦ 1.76：直接查表 → <b>0.4608</b>。'],
+         [2,'(2) Z ≧ 1.76：右半邊一共 0.5，扣掉剛剛那塊 → 0.5 - 0.4608 = <b>0.0392</b>。'],
+         [3,'(3) 0.56 ≦ Z ≦ 1.77：兩個都在右邊 → 大的減小的 → 0.4616 - 0.2123 = <b>0.2493</b>。'],
+         [4,'(4) -2.05 ≦ Z ≦ 0：左右對稱，跟 0 到 2.05 一樣 → <b>0.4798</b>。'],
+         [5,'(5) -0.93 ≦ Z ≦ +0.55：一左一右 → 兩塊相加 → 0.3238 + 0.2088 = <b>0.5326</b>。'],
+         [6,'(6) -1.14 ≦ Z ≦ -0.38：都在左邊 → 相減 → 0.3729 - 0.1480 = <b>0.2249</b>。'],
+         [7,'訣竅：先畫一張草圖，把要求的區域塗黑，就不會加錯減錯。口訣是<span class="hi">同號相減、異號相加</span>。']],
+  eli5:'先畫圖、再查表，加減就不會錯。' },
+
+{ ch:'標準化', t:'練習：把原始值換成 Z 再查表', t2:'全國 12 歲兒童身高　男生 μ = 148、σ = 2.5；女生 μ = 152、σ = 3.5',
+  art:ART.rawz, layout:'stack',
+  lines:[[1,'(1) 多少比例的<b>男生</b>身高介於 146 至 151 公分？'],
+         [2,'① 先換成 Z：Z1 = (146 - 148)/2.5 = -0.8；Z2 = (151 - 148)/2.5 = +1.2。'],
+         [3,'② 畫草圖：一左一右，兩塊相加。③ 查表：P(-0.8 ≦ Z ≦ 1.2) = 0.2881 + 0.3849 = 0.6730 → <b>67.30%</b>。'],
+         [4,'(2) 多少比例的<b>女生</b>身高介於 149 至 157 公分？'],
+         [5,'先換成 Z：Z1 = (149 - 152)/3.5 = -0.86；Z2 = (157 - 152)/3.5 = +1.43。'],
+         [6,'查表相加：P(-0.86 ≦ Z ≦ 1.43) = 0.3051 + 0.4236 = 0.7287 → <b>72.87%</b>。步驟永遠是：① 換成 Z ② 畫草圖 ③ 查表 ④ 加減。']],
+  eli5:'原始值不能直接查表，一定要先換成 Z。' },
+
+{ ch:'假設檢定', t:'先看問題卡在哪裡', t2:'為什麼不能直接猜母體',
+  art:ART.bag, layout:'side',
+  lines:[[1,'前面講的都有個前提：我們<b>知道</b>母體的 μ 和 σ。但現實中我們完全不知道。'],
+         [2,'從袋子裡抽 4 顆球，算出平均是 1 分。那整袋球的平均是多少？'],
+         [3,'可能袋子裡就只有那 4 顆 1 分球，剛好全抽到。'],
+         [4,'也可能 20 顆裡有 6 顆 1 分 —— 運氣普通。'],
+         [5,'也可能 100 顆裡只有 4 顆 1 分 —— 運氣很好，但機率<b>不等於 0</b>。'],
+         [6,'結論：光靠一次抽樣要「猜出」母體，有無限種可能，<span class="hi">估不出來</span>。']],
+  eli5:'直接猜母體是死路 —— 所以統計學走了一條完全相反的路。' },
+
+{ ch:'假設檢定', t:'那就反過來問：骰子作弊了嗎', t2:'整門課最核心的一招',
+  art:ART.dice, layout:'side',
+  lines:[[1,'不去猜母體，改成反過來問。① <b>先假設一個母體</b>：假設骰子公正，擲出六點的機率 = 1/6 ≒ 16.7%。② 根據這個假設畫出抽樣分布：中心放在假設值，寬度由標準誤決定。'],
+         [2,'③ 看實際觀察到的結果落在哪裡。某甲擲 25 次得 3 次六點 = 12% → 落在山的中間，<span class="hi">很常見</span>，沒理由懷疑一開始的假設。'],
+         [3,'某乙擲 31 次得 22 次六點 = 71% → 落在山腳下，<b>太罕見了</b>。有人作弊，你覺得是誰？大家都會說某乙 —— 因為 71% 比 16.7% 高得太離譜，一顆公正的骰子很難擲出這種結果。'],
+         [4,'落在極端有兩種可能：一、我運氣太好或太差，剛好抽到很難見到的結果；二、一開始的假設（骰子公正）就是錯的。'],
+         [5,'<b>統計學選擇相信第二種。</b> 這就叫「否證邏輯」—— 你早就會用了，統計只是把它寫成公式。'],
+         [6,'用<span class="hi">統計語言</span>說：理論上若母體平均為 μ，單次抽樣得到樣本平均 x 的機率極小時，就會認為母體平均可能不是 μ —— 某乙的骰子可能不是公正的。']],
+  eli5:'不去猜答案，先假設一個答案，再看資料打不打得到它。' },
+
+{ ch:'假設檢定', t:'否證邏輯：科學為什麼不「證明」', t2:'統計永遠不會「證明」任何事，它只會說「這個假設不太可能對」',
+  art:ART.falsify, layout:'side',
+  lines:[[1,'我們<b>不是</b>去證明「某乙的骰子擲出六點的機率是 71%」。'],
+         [2,'而是去<b>否定</b>「某乙的骰子擲出六點的機率是 16.7%」。'],
+         [3,'為什麼要繞這一圈？因為母體的真值<span class="hi">只有上帝知道</span> —— 我們永遠沒辦法直接證明它。'],
+         [4,'但我們可以一個一個否定掉不可能的答案，<b>逐步逼近</b>真值。'],
+         [5,'這在科學哲學上稱為<span class="hi">否證邏輯</span>，也叫<span class="hi">證偽法</span>。'],
+         [6,'所以統計結論的正確寫法是 ○「拒絕虛無假設」「兩組有顯著差異」；錯誤寫法是 ×「證明了新藥有效」「兩組完全一樣」。']],
+  eli5:'我們證明不了真值是多少，只能把「不可能的答案」一個一個劃掉。' },
+
+{ ch:'假設檢定', t:'H0 與 H1：靶和箭', t2:'這一頁的用詞，之後每一種方法都會用到',
+  art:ART.target, layout:'side',
+  lines:[[1,'<b>虛無假設 H0</b>：我們先假設的「沒事發生」狀態，它是<span class="hi">被拿來打的靶</span>。例：某乙的骰子擲出六點的機率 = 16.7%。'],
+         [1,'<b>對立假設 H1</b>：跟 H0 互斥，通常就是我們真正想證明的。例：機率 ≠ 16.7%。H0 永遠寫「沒有差異、沒有關聯、等於某個值」。'],
+         [2,'打中了 → <b>拒絕 H0</b> → 支持 H1 → 這叫「達到顯著差異」。'],
+         [3,'沒打中 → <b>不拒絕 H0</b> → 這次的資料不足以推翻它。'],
+         [4,'<b>注意：不拒絕 ≠ 接受。</b>「查無證據」不等於「證明無罪」—— 只是這次的資料不足以推翻 H0，不等於 H0 是對的。']],
+  eli5:'H0 是靶，不是結論。打不中只代表箭不夠力，不代表靶是對的。' },
+
+{ ch:'p 值', t:'Magic Number 0.05', t2:'「機率很小」—— 小到多少才算小？',
+  art:ART.pvalue, layout:'side',
+  lines:[[1,'前面一直說「這個機率很小」，但小很主觀。有人覺得 20% 就小了。科學研究不能這麼模糊。'],
+         [2,'所以科學界訂了一個公認門檻：<b>0.05</b>。雙尾的話兩邊各切 2.5%，這兩塊叫<span class="hi">拒絕區</span>。'],
+         [3,'切點（臨界值）就是剛才那個 <b>±1.96</b>。'],
+         [4,'<b>p 值</b> = 如果 H0 是真的，出現目前這種（或更極端）結果的機率。落在橘色區 → p &lt; 0.05 → 拒絕 H0。'],
+         [5,'0.05 這個門檻有個名字：<span class="hi">顯著水準 α</span>。要在收資料<b>之前</b>就決定。']],
+  eli5:'p 值小 = 「如果 H0 是真的，這結果太巧了」。' },
+
+{ ch:'p 值', t:'p 值最常被講錯的兩句話', t2:'全班最常錯的一題，期中考一定會考',
+  art:ART.pwrong, layout:'stack',
+  lines:[[1,'先把對的那一句記熟：那個 3% 是<b>在「H0 為真」這個前提下</b>算出來的機率。'],
+         [2,'第一個錯，是把前提和結論<b>對調</b>了 —— 「H0 為真的機率是 3%」聽起來很像，但完全是另一件事。'],
+         [3,'第二個錯，是把 p 當成「差多少」。收的人夠多，<span class="hi">很小的差異也會算出很小的 p</span>。差多少要看效果量。']],
+  eli5:'p 只回答「巧不巧」，不回答「差多少」。' },
+
+{ ch:'p 值', t:'0.05 是誰訂的？費雪與奶茶', t2:'一個 1920 年代的下午茶',
+  art:ART.tea, layout:'side',
+  lines:[[1,'1920 年代，英國統計學家 Ronald Fisher 在劍橋的一場下午茶：一位女士宣稱，她喝得出來奶茶是<b>先加茶</b>還是<b>先加奶</b>。'],
+         [2,'Fisher 設計了實驗：8 杯，4 杯先加奶、4 杯先加茶，隨機排列，請她挑出哪 4 杯是先加奶的。'],
+         [3,'如果她是亂猜的，全部猜對的機率 = 1 / C(8,4) = <span class="hi">1/70 ≒ 1.4%</span>。'],
+         [4,'1.4% 太小了 → 如果她真的全對，就有理由相信她<b>不是亂猜</b>的。（歷史記載：她全部答對了。）'],
+         [4,'Fisher 後來在著作中把 0.05 當成慣用判斷標準，一路沿用至今。'],
+         [4,'所以 0.05 <b>不是絕對標準</b> —— 這是人為訂定的，可以視情況調整，不同學門的慣例也不一樣：醫學、護理、社會科學以 0.05 為主流；基因體研究一次檢定幾萬個基因，常用 5×10^-8；物理學發現新粒子要求 5 sigma（約 3×10^-7）；探索性的前導研究有時放寬到 0.10。'],
+         [4,'重點是<span class="hi">事先講好</span> —— 算完之後再改門檻來讓結果變顯著，在研究倫理上不被接受。']],
+  eli5:'0.05 不是天啟，是一位統計學家的方便選擇，後來變成大家的默契。' },
+
+{ ch:'單尾雙尾', t:'單尾 vs 雙尾', t2:'對立假設怎麼寫，決定你要切幾邊',
+  art:ART.tails, layout:'side',
+  lines:[[1,'<b>雙尾</b>：H1 寫「不等於」（μ ≠ 227）—— 不管比較大還是比較小都算有差。α = 0.05 平分兩邊，各 2.5%，臨界值 <span class="hi">±1.96</span>。'],
+         [2,'<b>單尾</b>：H1 寫「大於」或「小於」（μ &gt; 227）—— 只有一個方向算。5% 全放一邊，臨界值變成 <span class="hi">1.645</span>。'],
+         [3,'1.645 比 1.96 小 → <b>單尾比較容易達到顯著</b>，所以它的使用受到嚴格限制。'],
+         [3,'可以用單尾的情況：理論上完全排除另一個方向（例如檢驗新藥「是否比安慰劑好」—— 沒有人會期待新藥比安慰劑差），<b>而且必須在收資料前就決定</b>。'],
+         [3,'不可以的情況：算完發現雙尾不顯著就改單尾 —— 這是研究不端行為（p-hacking）。'],
+         [3,'期刊審查最常抓的問題之一，就是「<b>為什麼你用單尾？</b>」'],
+         [3,'實務建議：護理與醫學研究<span class="hi">絕大多數用雙尾</span>，不確定就用雙尾，比較保守也比較安全。這門課的作業與考試一律用雙尾。']],
+  eli5:'單尾比較好過關，所以規定比較嚴。不確定就用雙尾。' },
+
+{ ch:'信賴區間', t:'信賴區間：比 p 值更有話講', t2:'p 值只說顯不顯著，CI 說真值大概在哪',
+  art:ART.ci, layout:'side',
+  lines:[[1,'每做一次研究，就會算出一個 <b>95% CI</b> = 樣本平均數 ± 1.96 × 標準誤：中心點是我們算出來的估計值，往左右各延伸 1.96 個標準誤（母體標準差未知時要改用 <span class="hi">t 分布</span>的臨界值，W07 會講）。'],
+         [2,'假設我們重複做很多次研究 —— 每一條橫線就是一次研究算出來的區間。'],
+         [3,'大多數區間蓋住了真正的 μ（藍色），少數幾條沒蓋到（紅色）。'],
+         [4,'<b>「95%」的意思就是這個</b>：用這種方法重複做很多次研究，約 95% 的區間會蓋住真正的 μ。例如「95% CI 為 [118, 126]」就要這樣解讀。'],
+         [5,'<b>× 常見錯誤：</b>「真值有 95% 機率落在這個區間裡」。錯 —— 真值是固定的，它要嘛在區間裡、要嘛不在，沒有機率可言；有隨機性的是<span class="hi">區間</span>，不是真值。這是統計最常被誤解的概念之一，期中考會考。'],
+         [5,'<b>× 另一個錯誤：</b>「95% 的資料落在這個區間內」。錯 —— 這是描述母體<b>平均數</b>的區間，不是個別資料的範圍。'],
+         [6,'影響區間寬度的因素：樣本數 n 愈大 → 標準誤愈小 → 區間愈窄 → 估得愈精準；<span class="hi">資料變異 s</span> 愈大 → 區間愈寬；信心水準從 95% 提到 99% → 區間變寬（要更有把握就得放寬範圍）。區間寬，結論就要保守。']],
+  eli5:'像套圈圈：圈圈會動，柱子不會動。95% 說的是「你的手準不準」。' },
+
+{ ch:'信賴區間', t:'CI 和 p 值其實是同一件事', t2:'學會這個，看論文會快很多',
+  art:ART.ciP, layout:'side',
+  lines:[[1,'假設 H0 是「μ = 227」，就在數線上標出 227 這條線。'],
+         [2,'95% CI = [228.1, 231.5]，<b>不包含 227</b> → 等同於 p &lt; 0.05 → 顯著。'],
+         [3,'95% CI = [225.2, 228.8]，<b>包含 227</b> → 等同於 p ≧ 0.05 → 不顯著。'],
+         [4,'比較兩組時 H0 是「差異 = 0」→ 看 CI 有沒有<span class="hi">跨過 0</span>；比值型指標（OR、RR、HR）→ 看有沒有<span class="hi">跨過 1</span>。'],
+         [4,'那為什麼要報 CI？因為它一次給你<b>方向、大小、精確度</b>三個資訊，p 值只給一個是非題答案。'],
+         [4,'現在多數期刊要求一定要報信賴區間。論文的標準寫法：<span class="hi">效果量 + 95% CI + p 值</span>，三個一起報。']],
+  eli5:'CI 跨過 H0 的值就是不顯著 —— 看一眼就知道，不用找 p。' },
+
+{ ch:'假設檢定', t:'假設檢定的完整流程', t2:'這六步驟，這學期會用一百次',
+  art:ART.steps6, layout:'side',
+  lines:[[1,'① 建立 <b>H0 與 H1</b>，同時決定單尾或雙尾。'],
+         [2,'② 設定<b>顯著水準 α</b>，通常 0.05，收資料前就決定。'],
+         [3,'③ 決定<b>統計檢定方法</b> —— 看資料型態、變項尺度與數量、研究目標（就是那張方法地圖）。'],
+         [4,'④ <b>計算檢定統計量</b> —— 交給 JASP／SPSS。t 值、卡方值、F 值都在這一步。'],
+         [5,'⑤ <b>比較並做決策</b>：p &lt; α 拒絕 H0；p ≧ α 不拒絕 H0。'],
+         [6,'⑥ <b>解釋結果並看效果量</b> —— 不能只講顯不顯著，還要講差多少、有沒有實務意義。']],
+  eli5:'從 W07 開始，每一種方法都照這六步走，只有第三、四步換內容。' },
+
+{ ch:'臨床指標', t:'臨床四個指標：四個問題', t2:'護理最實用的一段',
+  art:ART.table2x2, layout:'side',
+  lines:[[1,'先看這張 2×2 表：100 個真的有病、100 個真的沒病，拿同一個檢驗去驗。'],
+         [2,'<b>敏感度</b>：會不會<span class="hi">漏掉</span>病人？真的有病的人裡，驗出陽性的比例 = 90/(90+10) = <b>90%</b>。'],
+         [3,'<b>特異度</b>：會不會<span class="hi">誤判</span>健康人？真的沒病的人裡，驗出陰性的比例 = 70/(70+30) = <b>70%</b>。'],
+         [4,'<b>PPV 陽性預測值</b>：驗出陽性後我該多相信？陽性的人裡真的有病的比例 = 90/(90+30) = <b>75%</b>。'],
+         [5,'<b>NPV 陰性預測值</b>：驗出陰性後我該多相信？陰性的人裡真的沒病的比例 = 70/(70+10) = <b>87.5%</b>。'],
+         [6,'記法：敏感度／特異度看<b>直行</b>（分母是真實狀態）；PPV／NPV 看<b>橫列</b>（分母是檢驗結果）。'],
+         [6,'所以敏感度、特異度是<b>檢驗工具本身的特性</b>，不會因為在哪裡使用而改變；PPV、NPV 會隨著「這個族群有多少人生病」而大幅改變。']],
+  eli5:'敏感度特異度 = 這台機器準不準；PPV／NPV = 手上這張報告該多相信。' },
+
+{ ch:'臨床指標', t:'盛行率會拉垮 PPV', t2:'今天最重要的臨床觀念',
+  art:ART.prevalence, layout:'side',
+  lines:[[1,'同一個檢驗（敏感度 90%、特異度 70%），拿到兩個不同的地方用。'],
+         [2,'<b>臨床試驗</b>：收案 100 病 : 100 健康。每 100 張陽性報告，<span class="hi">75 張</span>是真的有病 → PPV 75%，還算堪用。'],
+         [3,'<b>社區普篩</b>：盛行率只有 1%（10,000 人裡 100 人有病）。每 100 張陽性報告，只有 <b>3 張</b>是真的 → PPV 2.9%。'],
+         [4,'<b>敏感度與特異度完全沒變</b>：敏感度 = 90/(90+10) = 90%，特異度 = 7000/(7000+3000) = 70%。變的是人群。'],
+         [5,'代價很具體：10,000 人篩檢會有<span class="hi">約 3,000 個健康人</span>被叫回來做進一步檢查。'],
+         [5,'反過來，NPV = 7000/(7000+10) = 99.9% —— 盛行率低時 NPV 很高，所以「陰性」在普篩裡反而很可信。']],
+  eli5:'檢驗沒變，是人群變了。罕見疾病的大規模篩檢，就算檢驗很準，多數陽性仍是偽陽性。' },
+
+{ ch:'臨床指標', t:'取捨，與兩階段篩檢', t2:'沒有完美的檢驗，只有適合這個情境的檢驗',
+  art:ART.tradeoff, layout:'side',
+  lines:[[1,'那要怎麼改善？想減少偽陽性 → 提高特異度。同樣盛行率 1%，換成敏感度 60%、特異度 95% 的檢驗：PPV = 60/(60+500) = 10.7%，NPV = 9500/(9500+40) = 99.6%，要複檢的人從 3,000 降到 500。'],
+         [1,'但代價是：敏感度從 90% 掉到 60%，<b>漏掉的病人從 10 人變成 40 人</b>。減少誤判就會增加漏診，這是永遠的取捨。'],
+         [2,'<b>第一關：篩檢</b> —— 用高敏感度工具，目的是不要漏掉病人，可以容忍偽陽性多一點。'],
+         [3,'<b>第二關：確診</b> —— 用高特異度工具，只對第一關陽性的人做，人數已經大幅減少。'],
+         [4,'結果：整體上既抓得到病人，又不會讓太多健康人接受不必要的處置。'],
+         [5,'怎麼選？<span class="hi">漏診代價高</span>（癌症、傳染病）→ 要高敏感度；<span class="hi">誤判代價高</span>（侵入性後續檢查）→ 要高特異度。例：子宮頸抹片（高敏感度）→ 陽性者做陰道鏡與切片（高特異度）。']],
+  eli5:'先用寬的網子撈，再用細的篩子挑 —— 這就是兩階段篩檢。' },
+
+{ ch:'臨床指標', t:'三個常見的臨床誤解', t2:'這三句話，你以後在臨床衛教時會一直遇到',
+  art:ART.myths, layout:'side',
+  lines:[[1,'誤解一：「這個檢驗準確率 95%，所以我驗出陽性，有 95% 的機率有病」。<b>錯</b> —— 95% 可能是敏感度或特異度，不是 PPV。要看盛行率才知道 PPV。'],
+         [2,'誤解二：「快篩陰性，所以我一定沒有感染」。<b>錯</b> —— 要看 NPV，還要看病毒量、採檢時機。敏感度 80% 表示<span class="hi">每 5 個確診者就有 1 個驗不出來</span>。'],
+         [3,'誤解三：「敏感度愈高的檢驗愈好」。<b>不一定</b> —— 敏感度高常伴隨特異度低。要看臨床情境：篩檢重敏感度，確診重特異度。']],
+  eli5:'聽到「準確率」，先問清楚：是敏感度、特異度，還是 PPV？' },
+
+{ ch:'臨床指標', t:'護理實務上怎麼用這四個指標', t2:'拿到報告、做衛教、看廠商簡報、導入篩檢工具',
+  art:ART.practice, layout:'side',
+  lines:[[1,'看到<b>陰性</b>報告 → 要問 <span class="hi">NPV</span>：這個族群的 NPV 高不高？高才能放心排除。盛行率低時 NPV 通常很高。'],
+         [2,'看到<b>陽性</b>報告 → 要問 <span class="hi">PPV</span>：這個族群的 PPV 是多少？低的話要準備做確認檢查。'],
+         [3,'<b>衛教說明</b>：不要跟病人說「你有 90% 的機率有病」—— 那是敏感度，不是 PPV。解釋陽性代表什麼，要考慮這個族群的盛行率。'],
+         [4,'<b>看廠商簡報</b>：廠商通常只寫敏感度、特異度（好看），PPV 要自己換算。'],
+         [5,'<b>決定要不要導入某個篩檢工具</b> → 看敏感度、特異度：這是工具本身的能力，跟場域無關。'],
+         [6,'<b>評估篩檢方案的整體效益</b> → 看 PPV 加上後續檢查量能 —— 偽陽性太多會讓<span class="hi">後端塞車</span>。']],
+  eli5:'拿到報告問 PPV／NPV，挑工具看敏感度／特異度。' },
+
+{ ch:'名詞速查', t:'本週名詞速查：分布與檢定', t2:'把今天的關鍵詞一次整理',
+  art:ART.gloss1, layout:'side',
+  lines:[[1,'<b>常態分布</b>：對稱的鐘型分布。μ 決定中心，σ 決定寬度。±1σ 約 68%、±2σ 約 95%。'],
+         [2,'<b>Z 分數</b>：(x - μ)/σ。把原始值換算成「離平均數幾個標準差」。'],
+         [3,'<b>虛無假設 H0</b>：先假設的「沒事發生」狀態。它是被拿來打的靶。'],
+         [4,'<b>對立假設 H1</b>：跟 H0 互斥，通常就是我們真正想證明的。'],
+         [5,'<b>顯著水準 α</b>：判斷「機率夠小」的門檻，慣例是 0.05。要在收資料前決定。'],
+         [6,'<b>p 值</b>：「如果 H0 為真，出現目前這種（或更極端）結果的機率」。']],
+  eli5:'這六個詞串起來，就是一整套假設檢定。' },
+
+{ ch:'名詞速查', t:'本週名詞速查：診斷指標', t2:'這五個詞最大的差別，在「分母是誰」',
+  art:ART.gloss2, layout:'side',
+  lines:[[1,'<b>敏感度 Sensitivity</b>：TP/(TP+FN)。真的有病的人裡，被驗成陽性的比例。'],
+         [2,'<b>特異度 Specificity</b>：TN/(TN+FP)。真的沒病的人裡，被驗成陰性的比例。'],
+         [3,'<b>PPV 陽性預測值</b>：TP/(TP+FP)。驗出陽性的人裡，真的有病的比例。會隨盛行率改變。'],
+         [4,'<b>NPV 陰性預測值</b>：TN/(TN+FN)。驗出陰性的人裡，真的沒病的比例。會隨盛行率改變。'],
+         [5,'<b>盛行率 Prevalence</b>：族群中實際患病的比例。不影響敏感度與特異度，但決定 PPV／NPV。']],
+  eli5:'前兩個看「真實狀態」，後兩個看「檢驗結果」，盛行率決定後兩個。' },
+
+{ ch:'收尾', t:'三句話總結今天', t2:'如果今天只帶走三句話',
+  art:ART.summary, layout:'side',
+  lines:[[1,'<b>常態分布</b>讓我們能算機率 —— 因為面積就是機率。'],
+         [2,'<b>假設檢定</b>用機率來否定假設 —— 先立一個靶 H0，再看資料打不打得到。'],
+         [3,'<b>盛行率</b>決定你該多相信一張報告 —— 同一個檢驗，換個場域結論差很多。'],
+         [4,'而貫穿這三句的那一件事：我們從來不「證明」什麼，我們只「否定」。']],
+  eli5:'統計是一門「排除法」的學問，不是「證明法」的學問。' },
+
+{ ch:'收尾', t:'課堂練習', t2:'不需要資料檔，計算題',
+  art:ART.homework, layout:'stack',
+  lines:[[1,'第 1 題考<b>查表</b>：先換成 Z，畫一張草圖把要的區域塗黑，再查表加減。'],
+         [2,'第 2 題考<b>觀念</b>：用自己的話講，不要抄投影片。錯誤解讀寫出來還要說明錯在哪。'],
+         [3,'第 3 題就是今天最重要的那一課 —— 同一支試劑，<span class="hi">門診和普篩的 PPV 差多少</span>。'],
+         [4,'三題都要寫出<b>計算過程</b>。答案打成投影片，下課前上傳。']],
+  eli5:'第 3 題就是今天最重要的那一課：同一個試劑，換個族群，意義完全不同。' },
+];
+
+/* ══════════════════ 播放引擎 ══════════════════ */
+const stage = document.getElementById('stage');
+let si = 0, step = 0, playing = false, timer = null;
+
+const maxStep = s => s.lines.reduce((m,l)=>Math.max(m,l[0]), 1);
+const totalSteps = SCENES.reduce((a,s)=>a+maxStep(s),0);
+
+function render(){
+  const s = SCENES[si];
+  const artHTML = s.art ? s.art() : '';
+  stage.innerHTML = `
+    <div class="chip">${s.ch}　·　場景 ${si+1} / ${SCENES.length}</div>
+    <h1 class="t">${s.t}</h1>
+    <p class="t2">${s.t2||''}</p>
+    <div class="body ${s.layout==='stack'?'stack':''}">
+      <div class="art">${artHTML}</div>
+      <div>
+        <ol class="lines">${s.lines.map((l,i)=>`<li data-step="${l[0]}">${l[1]}</li>`).join('')}</ol>
+        <div class="eli5"><span>一句話版</span>${s.eli5}</div>
+      </div>
+    </div>`;
+  paint();
+  buildToc();
+}
+
+const VIDEO = /(?:\?|&)video=1/.test(location.search);
+
+function applyOn(upto, cur){
+  stage.querySelectorAll('[data-at]').forEach(el=>{
+    const until = el.dataset.until ? +el.dataset.until : Infinity;
+    el.classList.toggle('on', +el.dataset.at <= upto && cur <= until);
+  });
+  stage.querySelectorAll('[data-only]').forEach(el=>{
+    el.classList.toggle('on', +el.dataset.only === cur);
+  });
+  stage.querySelectorAll('ol.lines li').forEach(li=>{
+    const n = +li.dataset.step;
+    li.classList.toggle('on', n <= upto);
+    li.classList.toggle('cur', n === cur);
+  });
+}
+
+function fitVideo(){
+  if(!VIDEO) return;
+  stage.style.transform = 'none';
+  const sc = Math.min(1, 700 / stage.offsetHeight);
+  stage.style.transform = 'scale(' + sc.toFixed(4) + ')';
+}
+
+function paint(){
+  const s = SCENES[si], m = maxStep(s);
+  if(VIDEO){
+    // 第一段：把前面幾步無動畫地擺上去（否則錄影時整頁會一起重新淡入）
+    stage.classList.add('prearm');
+    applyOn(step-1, step);
+    stage.querySelector('.eli5').classList.toggle('on', step-1 >= m);
+    void stage.offsetHeight;              // 強制 reflow，讓上面的狀態定住
+    stage.classList.remove('prearm');
+  }
+  applyOn(step, step);
+  stage.querySelector('.eli5').classList.toggle('on', step >= m);
+  fitVideo();
+  // 行數多的場景會超出一個螢幕：把剛點亮的那一行捲進可視範圍
+  const cur = VIDEO ? null : (stage.querySelector('ol.lines li.cur') ||
+              (step >= m ? stage.querySelector('.eli5') : null));
+  if(cur){
+    const r = cur.getBoundingClientRect();
+    if(r.bottom > window.innerHeight - 70 || r.top < 60)
+      cur.scrollIntoView({block:'center', behavior:'smooth'});
+  }
+  // 進度
+  let done = 0;
+  for(let i=0;i<si;i++) done += maxStep(SCENES[i]);
+  done += step;
+  document.getElementById('progBar').style.width = (done/totalSteps*100).toFixed(1)+'%';
+  document.getElementById('count').textContent = `場景 ${si+1}/${SCENES.length}　步驟 ${step}/${m}`;
+  document.querySelectorAll('#tocList button').forEach((b,i)=>b.classList.toggle('now', i===si));
+}
+
+function go(d){
+  const m = maxStep(SCENES[si]);
+  if(d>0){
+    if(step < m){ step++; }
+    else if(si < SCENES.length-1){ si++; step = 1; render(); setHash(); return; }
+    else { stop(); return; }
+  }else{
+    if(step > 1){ step--; }
+    else if(si > 0){ si--; step = maxStep(SCENES[si]); render(); setHash(); return; }
+  }
+  paint();
+}
+
+function jump(i, st){ si = i; step = st || 1; render(); setHash(); }
+function setHash(){
+  try{ history.replaceState(null,'','#'+(si+1)); }catch(e){}
+}
+function readHash(){
+  const h = (location.hash||'').replace('#','');
+  if(!h) return false;
+  const [a,b] = h.split('.');
+  const i = parseInt(a,10)-1;
+  if(isNaN(i) || i<0 || i>=SCENES.length) return false;
+  si = i;
+  const m = maxStep(SCENES[si]);
+  step = b==='end' ? m : Math.min(m, Math.max(1, parseInt(b,10)||1));
+  return true;
+}
+
+function dwell(){
+  const s = SCENES[si];
+  const txt = s.lines.filter(l=>l[0]===step).map(l=>l[1].replace(/<[^>]+>/g,'')).join('');
+  const base = (step===maxStep(s)) ? 2600 : 1400;   // 最後一步多停一下看「一句話版」
+  return Math.min(13000, base + txt.length*118);
+}
+function tick(){
+  clearTimeout(timer);
+  if(!playing) return;
+  const atEnd = () => si===SCENES.length-1 && step===maxStep(SCENES[si]);
+  if(voiceOn && TTS && theVoice){
+    speakStep(()=>{
+      if(!playing) return;
+      if(atEnd()){ stop(); return; }
+      timer = setTimeout(()=>{ go(1); tick(); }, 650);   // 唸完停半拍再前進
+    });
+    return;
+  }
+  timer = setTimeout(()=>{
+    if(si===SCENES.length-1 && step===maxStep(SCENES[si])){ stop(); return; }
+    go(1); tick();
+  }, dwell());
+}
+function play(){ playing=true; document.getElementById('btnPlay').textContent='⏸ 暫停'; tick(); }
+function stop(){ playing=false; clearTimeout(timer); if(typeof stopSpeak==='function') stopSpeak(); document.getElementById('btnPlay').textContent='▶ 自動播放'; }
+
+function buildToc(){
+  const list = document.getElementById('tocList');
+  if(list.children.length) {
+    document.querySelectorAll('#tocList button').forEach((b,i)=>b.classList.toggle('now', i===si));
+    return;
+  }
+  list.innerHTML = SCENES.map((s,i)=>
+    `<li><button data-i="${i}">${s.t}<span class="k">${s.ch}</span></button></li>`).join('');
+  list.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    manualJump(+b.dataset.i); document.getElementById('toc').classList.remove('open');
+  }));
+}
+
+/* ══════════════════ 配音 ══════════════════
+   兩種聲音來源，自動挑：
+   1. 預錄音檔（anim_audio/）：事先用 Edge 的曉臻自然語音錄好，離線可用，每台電腦聲音都一樣。
+      由 deck-scripts/anim/make_audio.py 產生。
+   2. 瀏覽器內建語音合成：沒有預錄音檔、或那一步的旁白改過（文字對不上音檔）時自動退回。 */
+
+const TTS = ('speechSynthesis' in window);
+const REC = (window.AUDIO_MANIFEST && window.AUDIO_MANIFEST.steps) ? window.AUDIO_MANIFEST : null;
+const REC_LABEL = '曉臻（預錄，離線可用）・台灣';
+let voiceOn = false, voices = [], theVoice = null, speakSeq = 0;
+let rate = 1, audioEl = null;
+
+/* @@NARRATION-BEGIN@@ ── 旁白文字：瀏覽器朗讀和預錄音檔共用這一段，make_audio.py 也會讀 ── */
+/* 符號要先換成唸得出來的中文，否則會念成亂七八糟的東西 */
+const SAY = [
+  // 先處理「符號 + 中文說明」並列的寫法，避免唸成「母體平均數 母體平均數」
+  [/μ\s*（平均數）/g, '平均數'], [/σ\s*（標準差）/g, '標準差'],
+  [/母體平均數\s*μ/g, '母體平均數'],
+  [/σ\s*\/\s*√n/g, '母體標準差除以根號 n'],
+  [/\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]/g, '$1 到 $2'],
+  [/(\d),(\d{3})/g, '$1$2'],
+  [/(\d)\s*:\s*(\d)/g, '$1 比 $2'],
+  [/\s+:\s+/g, ' 比 '],
+  [/\((\d)\)/g, '第$1題，'],
+  [/→/g, '，'],
+  [/(\d)\s*×\s*10\^-(\d+)/g, '$1乘以10的負$2次方'],
+  [/(\d)\s*×\s*(\d)/g, '$1乘$2'],
+  [/(\d)\s+-\s+(\d)/g, '$1減$2'],
+  [/([A-Za-z])\s+-\s+/g, '$1 減 '],
+  [/(^|[^\w])-(\d)/g, '$1負$2'],
+  [/√/g, '根號'], [/÷/g, '除以'], [/=/g, '等於'],
+  [/C\((\d+)\s*,\s*(\d+)\)/g, 'C $1 取 $2'],
+  [/○/g, '正確，'], [/×/g, '錯誤，'],
+  [/H0/g, 'H零'], [/H1/g, 'H一'],
+  [/μ/g, '母體平均數'], [/σ/g, '標準差'], [/α/g, '顯著水準'],
+  [/≒/g, '約等於'], [/≧/g, '大於等於'], [/≦/g, '小於等於'], [/≠/g, '不等於'],
+  [/</g, '小於'], [/>/g, '大於'], [/±/g, '正負'],
+  [/[＋+]/g, '加'],
+  [/／/g, '、'], [/\//g, '除以'],
+  [/①/g, '第一，'], [/②/g, '第二，'], [/③/g, '第三，'],
+  [/④/g, '第四，'], [/⑤/g, '第五，'], [/⑥/g, '第六，'],
+  [/[～~]/g, '到'],
+  [/——+/g, '，'], [/—/g, '，'], [/·/g, '，'],
+  [/[（(]/g, '，'], [/[）)]/g, '，'],
+  [/[「」『』]/g, ''],
+  [/\s*，[\s，]*/g, '，'],
+  [/^，|，(?=[。？！；：])/g, ''],
+  [/\s+/g, ' '],
+];
+
+function decodeEnt(t) {
+  return String(t).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+                  .replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+}
+function spoken(html) {
+  let t = decodeEnt(String(html).replace(/<[^>]+>/g, ' '));
+  for (const [re, rep] of SAY) t = t.replace(re, rep);
+  return t.trim();
+}
+/* 切成短句，避免 Chrome 唸超過 15 秒會自己斷掉的老問題 */
+function sentences(t) {
+  return t.replace(/([。！？；])/g, '$1\u0001').split('\u0001')
+          .map(x => x.trim()).filter(Boolean);
+}
+/* 第 sIdx 個場景、第 k 步要唸的句子：新場景先報標題，最後一步加「一句話版」 */
+function stepParts(sIdx, k) {
+  const s = SCENES[sIdx], m = maxStep(s), parts = [];
+  if (k === 1) parts.push(spoken(s.t));
+  s.lines.filter(l => l[0] === k).forEach(l => parts.push(...sentences(spoken(l[1]))));
+  if (k === m) parts.push(...sentences(spoken(s.eli5)));
+  return parts;
+}
+/* 錄音用的整段文字；也拿來比對音檔是不是跟目前的旁白一致 */
+function stepText(sIdx, k) {
+  return stepParts(sIdx, k).map(p => /[。！？；：]$/.test(p) ? p : p + '。').join('');
+}
+/* @@NARRATION-END@@ */
+
+function pickVoices() {
+  const sel = document.getElementById('selVoice');
+  const btn = document.getElementById('btnVoice');
+  voices = TTS ? speechSynthesis.getVoices().filter(v => /^zh/i.test(v.lang)) : [];
+  if (!voices.length && !REC) {
+    sel.innerHTML = '<option>沒有中文語音</option>';
+    sel.disabled = true; btn.disabled = true;
+    btn.textContent = '🔇 此瀏覽器沒有中文語音';
+    return;
+  }
+  // 偏好台灣的自然語音，其次任何 zh-TW，最後其他中文
+  const score = v => (/zh-TW/i.test(v.lang) ? 4 : 0) +
+                     (/Natural|Online/i.test(v.name) ? 2 : 0) +
+                     (/HK|CN/i.test(v.lang) ? 0 : 1);
+  voices.sort((a, b) => score(b) - score(a));
+  sel.disabled = false; btn.disabled = false;
+  // 語音是非同步載入的：第一次呼叫時清單可能還是空的，這裡要把按鈕文字改回來
+  btn.textContent = voiceOn ? '🔊 配音：開' : '🔈 配音：關';
+  const region = l => /TW/i.test(l) ? '台灣' : /HK/i.test(l) ? '香港' : /CN/i.test(l) ? '中國' : l;
+  const label = v => v.name.replace(/^Microsoft\s*/, '')
+                           .replace(/\s*Online \(Natural\)/, '（自然，需網路）')
+                           .replace(/\s*-\s*Chinese.*$/, '')
+                           .replace(/\s*Desktop$/, '') + (/Online/i.test(v.name) ? '' : '（離線）')
+                           + '・' + region(v.lang);
+  sel.innerHTML = (REC ? `<option value="rec">${REC_LABEL}</option>` : '') +
+    voices.map((v, i) => `<option value="${i}">${label(v)}</option>`).join('');
+  let want = REC ? 'rec' : '0';
+  try {
+    const saved = localStorage.getItem('w04voice2');
+    if (saved === 'rec' && REC) want = 'rec';
+    else if (saved && saved !== 'rec') {
+      const j = voices.findIndex(v => v.name === saved);
+      if (j >= 0) want = String(j);
+    }
+  } catch (e) {}
+  sel.value = want;
+  theVoice = (want === 'rec') ? 'rec' : voices[+want];
+}
+
+function stopMedia() {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  if (audioEl) {
+    audioEl.onended = audioEl.onerror = null;
+    try { audioEl.pause(); } catch (e) {}
+    audioEl = null;
+  }
+}
+function stopSpeak() { speakSeq++; stopMedia(); }
+
+/* 用瀏覽器語音唸一串句子 */
+function ttsParts(parts, my, done) {
+  const v = (theVoice && theVoice !== 'rec') ? theVoice : (voices[0] || null);
+  if (!TTS || !v) { done(); return; }
+  try { speechSynthesis.cancel(); } catch (e) {}
+  let i = 0;
+  const next = () => {
+    if (my !== speakSeq) return;                        // 已被新的取代
+    if (i >= parts.length) { done(); return; }
+    const u = new SpeechSynthesisUtterance(parts[i++]);
+    u.voice = v; u.lang = v.lang; u.rate = rate;
+    u.onend = next;
+    u.onerror = next;
+    speechSynthesis.speak(u);
+  };
+  next();
+}
+
+/* 唸出目前這一步；唸完呼叫 done() */
+function speakStep(done) {
+  if (VIDEO || !voiceOn || !theVoice) { done && done(); return; }
+  const my = ++speakSeq;
+  stopMedia();
+  const finish = () => { if (my === speakSeq) done && done(); };
+  if (theVoice === 'rec') {
+    const rec = REC && REC.steps[(si + 1) + '.' + step];
+    if (rec && rec.t === stepText(si, step)) {
+      let fell = false;
+      const fallback = () => {                           // 音檔讀不到就改用瀏覽器語音
+        if (fell || my !== speakSeq) return;
+        fell = true; ttsParts(stepParts(si, step), my, finish);
+      };
+      audioEl = new Audio(REC.dir + rec.f);
+      audioEl.playbackRate = rate;
+      audioEl.onended = finish;
+      audioEl.onerror = fallback;
+      const p = audioEl.play();
+      if (p && p.catch) p.catch(fallback);
+      return;
+    }
+    // 這一步的旁白改過、或沒有對應的音檔 → 退回瀏覽器語音
+  }
+  ttsParts(stepParts(si, step), my, finish);
+}
+
+/* Chrome／Edge 長時間朗讀會自己停住，定期戳一下 */
+if (TTS) setInterval(() => {
+  if (voiceOn && speechSynthesis.speaking && !speechSynthesis.paused) {
+    speechSynthesis.pause(); speechSynthesis.resume();
+  }
+}, 9000);
+
+function setVoiceOn(v) {
+  voiceOn = v;
+  const b = document.getElementById('btnVoice');
+  b.textContent = v ? '🔊 配音：開' : '🔈 配音：關';
+  b.classList.toggle('on', v);
+  try { localStorage.setItem('w04voiceon2', v ? '1' : '0'); } catch (e) {}
+  if (!v) stopSpeak();
+}
+
+function manualGo(d){ stop(); go(d); speakStep(); }
+function manualJump(i){ stop(); jump(i); speakStep(); }
+
+/* 控制 */
+document.getElementById('btnNext').addEventListener('click',()=>manualGo(1));
+document.getElementById('btnPrev').addEventListener('click',()=>manualGo(-1));
+
+document.getElementById('btnVoice').addEventListener('click',()=>{
+  setVoiceOn(!voiceOn);
+  if(voiceOn){ if(playing) tick(); else speakStep(); }
+});
+document.getElementById('selVoice').addEventListener('change',e=>{
+  const v = e.target.value;
+  theVoice = (v === 'rec') ? 'rec' : (voices[+v] || theVoice);
+  try{ localStorage.setItem('w04voice2', theVoice === 'rec' ? 'rec' : theVoice.name); }catch(err){}
+  if(voiceOn && !playing) speakStep();
+});
+document.getElementById('selRate').addEventListener('change',e=>{
+  rate = +e.target.value;
+  if(audioEl) audioEl.playbackRate = rate;            // 正在播的音檔也馬上變速
+  try{ localStorage.setItem('w04rate', String(rate)); }catch(err){}
+});
+document.getElementById('btnPlay').addEventListener('click',()=>{ playing?stop():play(); });
+document.getElementById('btnToc').addEventListener('click',()=>document.getElementById('toc').classList.add('open'));
+document.getElementById('btnTocClose').addEventListener('click',()=>document.getElementById('toc').classList.remove('open'));
+document.getElementById('toc').addEventListener('click',e=>{ if(e.target.id==='toc') e.currentTarget.classList.remove('open'); });
+
+document.getElementById('btnTheme').addEventListener('click',()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem('w04theme', next); }catch(e){}
+});
+try{ const t=localStorage.getItem('w04theme'); if(t) document.documentElement.setAttribute('data-theme',t); }catch(e){}
+
+window.addEventListener('keydown',e=>{
+  if(e.target && /SELECT|INPUT/.test(e.target.tagName)) return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){ manualGo(1); e.preventDefault(); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ manualGo(-1); e.preventDefault(); }
+  else if(e.key===' '){ playing?stop():play(); e.preventDefault(); }
+  else if(e.key==='ArrowDown'){ if(si<SCENES.length-1) manualJump(si+1); e.preventDefault(); }
+  else if(e.key==='ArrowUp'){ if(si>0) manualJump(si-1); e.preventDefault(); }
+  else if(e.key==='v'||e.key==='V'){ document.getElementById('btnVoice').click(); }
+  else if(e.key==='Escape'){ document.getElementById('toc').classList.remove('open'); }
+});
+
+/* 啟動 */
+if(VIDEO) document.body.classList.add('video');
+if((TTS || REC) && !VIDEO){
+  pickVoices();
+  if(TTS) speechSynthesis.addEventListener('voiceschanged', pickVoices);
+  try{
+    const r = localStorage.getItem('w04rate');
+    if(r){ rate = +r; document.getElementById('selRate').value = r; }
+  }catch(e){}
+  // 配音預設開啟；只有使用者自己按掉過才保持關閉。
+  // 瀏覽器規定要等使用者第一次操作（按下一步、播放）才會出聲，所以打開頁面時不會突然開始唸。
+  let on = true;
+  try{ if(localStorage.getItem('w04voiceon2')==='0') on = false; }catch(e){}
+  voiceOn = on;                                     // 語音清單晚到時，pickVoices 會照這個值更新按鈕
+  if(!document.getElementById('btnVoice').disabled) setVoiceOn(on);
+}else if(!TTS && !REC){
+  const b = document.getElementById('btnVoice');
+  b.disabled = true; b.textContent = '🔇 此瀏覽器不支援配音';
+  document.getElementById('selVoice').style.display = 'none';
+  document.getElementById('selRate').style.display = 'none';
+}
+step = 1;
+readHash();
+render();
+if(VIDEO) requestAnimationFrame(fitVideo);
+</script>
+</body>
+</html>
